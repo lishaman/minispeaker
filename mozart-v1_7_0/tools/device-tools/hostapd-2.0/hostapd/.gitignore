@@ -1,0 +1,4 @@
+.config
+*.o
+hostapd
+hostapd_cli

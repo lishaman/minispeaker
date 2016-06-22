@@ -1,0 +1,6 @@
+{
+    "command_str": "{\"commandlist\":[{\"commandcontent\":{\"action\":\"playradio\",\"name\":\"\",\"type\":\"internet\",\"freq\":\"\",\"url\":\"mms://livexwb.cri.com.cn/fm915\",\"data\":[],\"web\":\"\"},\"commandtype\":\"devicecontrol\",\"source_type\":\"devicecontrol_type_1\"}],\"debug_info\":\"\",\"handle_text\":\"播放网络电台\",\"more_info\":0}\n",
+    "item": [
+      "播放网络电台"
+    ]
+}

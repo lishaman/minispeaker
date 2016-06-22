@@ -1,0 +1,6 @@
+   {
+	"command_str": "{\"commandlist\":[{\"commandcontent\":{\"action\":\"displayhomepage\",\"data\":[],\"web\":\"\"},\"commandtype\":\"devicecontrol\",\"source_type\":\"devicecontrol_type_1\"}],\"debug_info\":\"\",\"handle_text\":\"显示首页\",\"more_info\":0}\n",
+    "item": [
+      "显示首页"
+    ]
+  }

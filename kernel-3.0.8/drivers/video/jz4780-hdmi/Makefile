@@ -1,0 +1,63 @@
+obj-$(CONFIG_HDMI_JZ4780) += jzhdmi.o
+
+jzhdmi-y = \
+jz4780_hdmi.o \
+api/api.o \
+core/halAudioClock.o \
+core/halFrameComposerPackets.o \
+core/audioParams.o \
+core/halFrameComposerGcp.o \
+core/halAudioHbr.o \
+core/packets.o \
+core/control.o \
+core/halFrameComposerVsd.o \
+core/halVideoSampler.o \
+core/halFrameComposerAvi.o \
+core/halAudioI2s.o \
+core/audio.o \
+core/halVideoGenerator.o \
+core/halAudioGenerator.o \
+core/productParams.o \
+core/video.o \
+core/halColorSpaceConverter.o \
+core/halVideoPacketizer.o \
+core/halMainController.o \
+core/halInterrupt.o \
+core/halAudioSpdif.o \
+core/halFrameComposerGamut.o \
+core/halFrameComposerVideo.o \
+core/halFrameComposerSpd.o \
+core/halFrameComposerAcp.o \
+core/halAudioDma.o \
+core/halFrameComposerDebug.o \
+core/halIdentification.o \
+core/halFrameComposerAudio.o \
+core/halFrameComposerIsrc.o \
+core/videoParams.o \
+core/halAudioGpa.o \
+core/halFrameComposerAudioInfo.o \
+hdcp/hdcpVerify.o \
+hdcp/halHdcp.o \
+hdcp/hdcp.o \
+hdcp/hdcpParams.o \
+phy/phy.o \
+phy/halSourcePhy.o \
+phy/halI2cMasterPhy.o \
+edid/speakerAllocationDataBlock.o \
+edid/shortAudioDesc.o \
+edid/halEdid.o \
+edid/videoCapabilityDataBlock.o \
+edid/monitorRangeLimits.o \
+edid/colorimetryDataBlock.o \
+edid/hdmivsdb.o \
+edid/edid.o \
+edid/dtd.o \
+edid/shortVideoDesc.o \
+bsp/system.o \
+bsp/access.o \
+bsp/mutex.o \
+bsp/board.o \
+util/error.o \
+util/log.o \
+util/bitOperation.o\
+cec/cec.o

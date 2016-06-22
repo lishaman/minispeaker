@@ -1,0 +1,5 @@
+*.service
+.config
+wpa_supplicant
+wpa_cli
+wpa_passphrase

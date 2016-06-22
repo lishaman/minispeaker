@@ -1,0 +1,6 @@
+{
+    "command_str": "{\"commandlist\":[{\"commandcontent\":{\"action\":\"playradio\",\"name\":\"北京交通广播电台\",\"type\":\"fm\",\"freq\":\"106.9MHz\",\"url\":\"mms://livexwb.cri.com.cn/fm915\",\"data\":[],\"web\":\"\"},\"commandtype\":\"devicecontrol\",\"source_type\":\"devicecontrol_type_1\"}],\"debug_info\":\"\",\"handle_text\":\"北京交通广播电台\",\"more_info\":0}\n",
+    "item": [
+      "北京交通广播电台"
+    ]
+}

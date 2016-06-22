@@ -1,0 +1,7 @@
+config MRVL8766
+    tristate "Marvell MRVL8766 USB WiFi & BT "
+    depends on USB
+    select WIRELESS_EXT
+    select WEXT_PRIV
+    ---help---
+    Help message of Marvell MRVL8766 wifi & BT

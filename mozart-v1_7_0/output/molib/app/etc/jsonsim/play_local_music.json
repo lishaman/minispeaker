@@ -1,0 +1,6 @@
+{
+    "command_str": "{\"commandlist\":[{\"commandcontent\":{\"action\":\"playlocalmusic\",\"data\":[],\"web\":\"\"},\"commandtype\":\"devicecontrol\",\"source_type\":\"devicecontrol_type_1\"}],\"debug_info\":\"\",\"handle_text\":\"播放本地音乐\",\"more_info\":0}\n",
+    "item": [
+      "播放本地音乐"
+    ]
+}

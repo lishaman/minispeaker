@@ -1,0 +1,10 @@
+ {
+       "appkey":"box2015product01",
+       "host":"mlabs.taobao.com",
+       "port":"443",
+       "version":"2.0",
+       "enable_vad":1,
+       "use_ssl":1,
+       "prefetch_dns":0,
+       "ca_path":"/usr/fs/etc/atalk/ca.pem"
+ }

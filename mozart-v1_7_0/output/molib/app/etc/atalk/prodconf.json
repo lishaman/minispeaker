@@ -1,0 +1,26 @@
+{
+  "alink": {
+    "manufacture": "EDIFIER", 
+    "category": "ENTERTAINMENT", 
+    "thread_num": 1, 
+    "name": "EDIFIER", 
+    "cid": "02:22:6C:00:00:24", 
+    "mac": "02:22:6C:00:00:24", 
+    "server": "alink.tcp.aliyun.com", 
+    "secret": "Llz6uMy6shLtaEVU8NlWxBOzir792AUf9G9Nujzl", 
+    "version": "1.0.0", 
+    "sn": "", 
+    "key": "F3l3xf71y7MuFYQ339Re", 
+    "model": "EDIFIER_ENTERTAINMENT_ATALK_MA1", 
+    "type": "ATALK", 
+    "port": 443
+  }, 
+  "web_service": {
+    "url": "https://iot.aliyun.com", 
+    "timeout_ms": 2500, 
+    "capath": "/usr/fs/etc/atalk/ca.pem"
+  }, 
+  "waiting_sound_path": "/usr/fs/usr/atalk/tone/Loading.mp3", 
+  "env": "production", 
+  "voice_prompt_dir": "/usr/fs/usr/atalk/tone/"
+}

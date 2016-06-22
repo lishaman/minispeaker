@@ -1,0 +1,67 @@
+#ifndef  __MMA8452_H__
+#define  __MMA8452_H__
+
+#define MMA8452_ODR1              0x38    /* 1.56Hz output data rate */
+#define MMA8452_ODR6              0x30    /* 6.25Hz output data rate */
+#define MMA8452_ODR12             0x28    /* 12.5Hz output data rate */
+#define MMA8452_ODR50             0x20    /* 50Hz output data rate */
+#define MMA8452_ODR100            0x18    /* 100Hz output data rate */
+#define MMA8452_ODR200            0x10    /* 200Hz output data rate */
+#define MMA8452_ODR400            0x08    /* 400Hz output data rate */
+#define MMA8452_ODR800            0x00    /* 800Hz output data rate */
+
+/* register enum for mma8452 registers */
+enum {
+	MMA8452_STATUS = 0x00,
+	MMA8452_OUT_X_MSB,
+	MMA8452_OUT_X_LSB,
+	MMA8452_OUT_Y_MSB,
+	MMA8452_OUT_Y_LSB,
+	MMA8452_OUT_Z_MSB,
+	MMA8452_OUT_Z_LSB,
+	
+	MMA8452_SYSMOD = 0x0B,
+	MMA8452_INT_SOURCE,
+	MMA8452_WHO_AM_I,
+	MMA8452_XYZ_DATA_CFG,
+	MMA8452_HP_FILTER_CUTOFF,
+	
+	MMA8452_PL_STATUS,
+	MMA8452_PL_CFG,
+	MMA8452_PL_COUNT,
+	MMA8452_PL_BF_ZCOMP,
+	MMA8452_PL_P_L_THS_REG,
+	
+	MMA8452_FF_MT_CFG,
+	MMA8452_FF_MT_SRC,
+	MMA8452_FF_MT_THS,
+	MMA8452_FF_MT_COUNT,
+
+	MMA8452_TRANSIENT_CFG = 0x1D,
+	MMA8452_TRANSIENT_SRC,
+	MMA8452_TRANSIENT_THS,
+	MMA8452_TRANSIENT_COUNT,
+	
+	MMA8452_PULSE_CFG,
+	MMA8452_PULSE_SRC,
+	MMA842_PULSE_THSX,
+	MMA8452_PULSE_THSY,
+	MMA8452_PULSE_THSZ,
+	MMA8452_PULSE_TMLT,
+	MMA8452_PULSE_LTCY,
+	MMA8452_PULSE_WIND,
+	
+	MMA8452_ASLP_COUNT,
+	MMA8452_CTRL_REG1,
+	MMA8452_CTRL_REG2,
+	MMA8452_CTRL_REG3,
+	MMA8452_CTRL_REG4,
+	MMA8452_CTRL_REG5,
+	
+	MMA8452_OFF_X,
+	MMA8452_OFF_Y,
+	MMA8452_OFF_Z,
+	
+	MMA8452_REG_END,
+};
+#endif

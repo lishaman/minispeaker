@@ -1,0 +1,4 @@
+please test_formate move to you nfsroot   /data/test_formate
+
+/data/iputest_new  -src_w 800 -src_h 480  -out_w 800 -out_h 480 -src_tlb 1  -dst_tlb 1 -dst_format RGB888 -src_format PACKRGB -tolcd 2  -saveBmp 0 -usepmem 0 -dump_reg 0 -runcount 999999999
+

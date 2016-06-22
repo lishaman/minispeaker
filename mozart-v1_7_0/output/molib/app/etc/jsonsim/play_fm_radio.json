@@ -1,0 +1,6 @@
+{
+    "command_str": "{\"commandlist\":[{\"commandcontent\":{\"action\":\"playradio\",\"name\":\"\",\"type\":\"fm\",\"freq\":\"\",\"url\":\"\",\"data\":[],\"web\":\"\"},\"commandtype\":\"devicecontrol\",\"source_type\":\"devicecontrol_type_1\"}],\"debug_info\":\"\",\"handle_text\":\"调频广播\",\"more_info\":0}\n",
+    "item": [
+      "调频广播"
+    ]
+}

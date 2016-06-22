@@ -1,0 +1,7 @@
+# <name>		<type>	<mode>	<uid>	<gid>	<major>	<minor>	<start>	<inc>	<count>
+/var/run			d	755	0	0       -       -       -       -       -
+/mnt/usb			d	755	0	0       -       -       -       -       -
+/mnt/sdcard			d	755	0	0       -       -       -       -       -
+/mnt/cgroup			d	755	0	0       -       -       -       -       -
+/usr/fs 			d	755	0	0       -       -       -       -       -
+/lib/modules                    d       755     0       0       -       -       -       -       -

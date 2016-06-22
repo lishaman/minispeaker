@@ -1,0 +1,19 @@
+choice
+prompt "BOARD version"
+depends on PRODUCT_X1000_YOUTH
+default BOARD_X1000_YOUTH_V10
+
+config BOARD_X1000_YOUTH_V10
+bool "board x1000 youth v10"
+depends on PRODUCT_X1000_YOUTH
+
+endchoice
+
+config BOARD_NAME
+string
+default "youth_v10" if BOARD_X1000_YOUTH_V10
+
+
+
+
+

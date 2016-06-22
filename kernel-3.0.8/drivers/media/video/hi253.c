@@ -1,0 +1,2053 @@
+/*
+ * V4L2 Driver for camera sensor hi253
+ *
+ * Copyright (C) 2012, Ingenic Semiconductor Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ */
+
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/i2c.h>
+#include <linux/slab.h>
+#include <linux/delay.h>
+#include <linux/videodev2.h>
+#include <media/v4l2-chip-ident.h>
+#include <media/v4l2-subdev.h>
+#include <media/soc_camera.h>
+#include <media/soc_mediabus.h>
+
+
+#define REG_CHIP_ID		0x04
+#define PID_HI253		0x92
+
+#define REG_PAGE_MODE		0x03
+#define REG11				0x11
+#define REG11_VFLIP_IMG		0x02
+#define REG11_HFLIP_IMG		0x01
+
+/* Private v4l2 controls */
+#define V4L2_CID_PRIVATE_BALANCE  (V4L2_CID_PRIVATE_BASE + 0)
+#define V4L2_CID_PRIVATE_EFFECT  (V4L2_CID_PRIVATE_BASE + 1)
+
+ /* whether sensor support high resolution (> vga) preview or not */
+#define SUPPORT_HIGH_RESOLUTION_PRE		0
+
+/*
+ * Struct
+ */
+struct regval_list {
+	u8 reg_num;
+	u8 value;
+};
+
+struct mode_list {
+	u8 index;
+	const struct regval_list *mode_regs;
+};
+
+/* Supported resolutions */
+enum hi253_width {
+	W_QCIF	= 176,
+	W_CIF	= 352,
+	W_VGA	= 640,
+	W_SVGA	= 800,
+	W_XGA	= 1024,
+	W_SXGA	= 1280,
+	W_UXGA	= 1600,
+};
+
+enum hi253_height {
+	H_QCIF	= 144,
+	H_CIF	= 288,
+	H_VGA	= 480,
+	H_SVGA	= 600,
+	H_XGA	= 768,
+	H_SXGA	= 1024,
+	H_UXGA	= 1200,
+};
+
+struct hi253_win_size {
+	char *name;
+	enum hi253_width width;
+	enum hi253_height height;
+	const struct regval_list *regs;
+};
+
+
+struct hi253_priv {
+	struct v4l2_subdev subdev;
+	struct hi253_camera_info *info;
+	enum v4l2_mbus_pixelcode cfmt_code;
+	const struct hi253_win_size *win;
+	int	model;
+	u8 balance_value;
+	u8 effect_value;
+	u16	flag_vflip:1;
+	u16	flag_hflip:1;
+};
+
+/*
+ * Registers settings
+ */
+
+#define ENDMARKER { 0xff, 0xff }
+
+static const struct regval_list hi253_init_regs[] = {
+	{0x01, 0xf9}, //sleep on
+	{0x08, 0x0f}, //Hi-Z on
+	{0x01, 0xf8}, //sleep off
+
+	{0x03, 0x00}, // Dummy 750us START
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00}, // Dummy 750us END
+
+	{0x0e, 0x03}, //PLL On
+	{0x0e, 0x73}, //PLLx2
+
+	{0x03, 0x00}, // Dummy 750us START
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00}, // Dummy 750us END
+
+	{0x0e, 0x00}, //PLL off
+	{0x01, 0xf1}, //sleep on
+	{0x08, 0x00}, //Hi-Z off
+
+	{0x01, 0xf3},
+	{0x01, 0xf1},
+
+	// PAGE 20
+	{0x03, 0x20}, //page 20
+	{0x10, 0x1c}, //ae off
+
+	// PAGE 22
+	{0x03, 0x22}, //page 22
+	{0x10, 0x69}, //awb off
+
+	//Initial Start
+	/////// PAGE 0 START ///////
+	{0x03, 0x00},
+	{0x10, 0x11}, // Sub1/2_Preview2 Mode_H binning
+	{0x11, 0x90},
+	{0x12, 0x00},
+
+	{0x0b, 0xaa}, // ESD Check Register
+	{0x0c, 0xaa}, // ESD Check Register
+	{0x0d, 0xaa}, // ESD Check Register
+
+	{0x20, 0x00}, // Windowing start point Y
+	{0x21, 0x04},
+	{0x22, 0x00}, // Windowing start point X
+	{0x23, 0x03},//07
+
+	{0x24, 0x04},
+	{0x25, 0xb0},
+	{0x26, 0x06},
+	{0x27, 0x40}, // WINROW END
+
+	{0x40, 0x01}, //Hblank 408
+	{0x41, 0x68}, //98
+	{0x42, 0x00}, //Vblank 20
+	{0x43, 0x14},
+
+	{0x45, 0x04},
+	{0x46, 0x18},
+	{0x47, 0xd8},
+
+	//BLC
+	{0x80, 0x2e},
+	{0x81, 0x7e},
+	{0x82, 0x90},
+	{0x83, 0x00},
+	{0x84, 0x0c},
+	{0x85, 0x00},
+	{0x90, 0x0a}, //BLC_TIME_TH_ON
+	{0x91, 0x0a}, //BLC_TIME_TH_OFF
+	{0x92, 0xd8}, //BLC_AG_TH_ON
+	{0x93, 0xd0}, //BLC_AG_TH_OFF
+	{0x94, 0x75},
+	{0x95, 0x70},
+	{0x96, 0xdc},
+	{0x97, 0xfe},
+	{0x98, 0x38},
+
+	//OutDoor  BLC
+	{0x99, 0x43},
+	{0x9a, 0x43},
+	{0x9b, 0x43},
+	{0x9c, 0x43},
+
+	//Dark BLC
+	{0xa0, 0x00},
+	{0xa2, 0x00},
+	{0xa4, 0x00},
+	{0xa6, 0x00},
+
+	//Normal BLC
+	{0xa8, 0x43},
+	{0xaa, 0x43},
+	{0xac, 0x43},
+	{0xae, 0x43},
+
+	/////// PAGE 2 START ///////
+	{0x03, 0x02},
+	{0x12, 0x03},
+	{0x13, 0x03},
+	{0x16, 0x00},
+	{0x17, 0x8C},
+	{0x18, 0x4c}, //Double_AG off
+	{0x19, 0x00},
+	{0x1a, 0x39}, //ADC400->560
+	{0x1c, 0x09},
+	{0x1d, 0x40},
+	{0x1e, 0x30},
+	{0x1f, 0x10},
+
+	{0x20, 0x77},
+	{0x21, 0xde},
+	{0x22, 0xa7},
+	{0x23, 0x30}, //CLAMP
+	{0x27, 0x3c},
+	{0x2b, 0x80},
+	{0x2e, 0x11},
+	{0x2f, 0xa1},
+	{0x30, 0x05}, //For Hi-253 never no change 0x05
+
+	{0x50, 0x20},
+	{0x52, 0x01},
+	{0x55, 0x1c},
+	{0x56, 0x11},
+	{0x5d, 0xa2},
+	{0x5e, 0x5a},
+
+	{0x60, 0x87},
+	{0x61, 0x99},
+	{0x62, 0x88},
+	{0x63, 0x97},
+	{0x64, 0x88},
+	{0x65, 0x97},
+
+	{0x67, 0x0c},
+	{0x68, 0x0c},
+	{0x69, 0x0c},
+
+	{0x72, 0x89},
+	{0x73, 0x96},
+	{0x74, 0x89},
+	{0x75, 0x96},
+	{0x76, 0x89},
+	{0x77, 0x96},
+
+	{0x7c, 0x85},
+	{0x7d, 0xaf},
+	{0x80, 0x01},
+	{0x81, 0x7f},
+	{0x82, 0x13},
+
+	{0x83, 0x24},
+	{0x84, 0x7d},
+	{0x85, 0x81},
+	{0x86, 0x7d},
+	{0x87, 0x81},
+
+	{0x92, 0x48},
+	{0x93, 0x54},
+	{0x94, 0x7d},
+	{0x95, 0x81},
+	{0x96, 0x7d},
+	{0x97, 0x81},
+
+	{0xa0, 0x02},
+	{0xa1, 0x7b},
+	{0xa2, 0x02},
+	{0xa3, 0x7b},
+	{0xa4, 0x7b},
+	{0xa5, 0x02},
+	{0xa6, 0x7b},
+	{0xa7, 0x02},
+
+	{0xa8, 0x85},
+	{0xa9, 0x8c},
+	{0xaa, 0x85},
+	{0xab, 0x8c},
+	{0xac, 0x10},
+	{0xad, 0x16},
+	{0xae, 0x10},
+	{0xaf, 0x16},
+
+	{0xb0, 0x99},
+	{0xb1, 0xa3},
+	{0xb2, 0xa4},
+	{0xb3, 0xae},
+	{0xb4, 0x9b},
+	{0xb5, 0xa2},
+	{0xb6, 0xa6},
+	{0xb7, 0xac},
+	{0xb8, 0x9b},
+	{0xb9, 0x9f},
+	{0xba, 0xa6},
+	{0xbb, 0xaa},
+	{0xbc, 0x9b},
+	{0xbd, 0x9f},
+	{0xbe, 0xa6},
+	{0xbf, 0xaa},
+
+	{0xc4, 0x2c},
+	{0xc5, 0x43},
+	{0xc6, 0x63},
+	{0xc7, 0x79},
+
+	{0xc8, 0x2d},
+	{0xc9, 0x42},
+	{0xca, 0x2d},
+	{0xcb, 0x42},
+	{0xcc, 0x64},
+	{0xcd, 0x78},
+	{0xce, 0x64},
+	{0xcf, 0x78},
+
+	{0xd0, 0x0a},
+	{0xd1, 0x09},
+	{0xd4, 0x0a}, //DCDC_TIME_TH_ON
+	{0xd5, 0x0a}, //DCDC_TIME_TH_OFF
+	{0xd6, 0xd8}, //DCDC_AG_TH_ON
+	{0xd7, 0xd0}, //DCDC_AG_TH_OFF
+	{0xe0, 0xc4},
+	{0xe1, 0xc4},
+	{0xe2, 0xc4},
+	{0xe3, 0xc4},
+	{0xe4, 0x00},
+	{0xe8, 0x80},
+	{0xe9, 0x40},
+	{0xea, 0x7f},
+
+	/////// PAGE 3 ///////
+	{0x03, 0x03},
+	{0x10, 0x10},
+
+	/////// PAGE 10 START ///////
+	{0x03, 0x10},
+	{0x10, 0x03}, // CrYCbY // For Demoset 0x03
+	{0x12, 0x30},
+
+	/* disable contrast */
+	{0x13, 0x00},
+
+	{0x20, 0x00},
+	{0x30, 0x00},
+	{0x31, 0x00},
+	{0x32, 0x00},
+	{0x33, 0x00},
+
+	{0x34, 0x30},
+	{0x35, 0x00},
+	{0x36, 0x00},
+	{0x38, 0x00},
+	{0x3e, 0x58},
+	{0x3f, 0x00},
+
+	/* adjust brightness */
+	{0x40, 0xa0}, // YOFS
+	{0x41, 0x00}, // DYOFS
+
+	{0x60, 0x67},
+	{0x61, 0x7c}, //7e //8e //88 //80
+	{0x62, 0x7c}, //7e //8e //88 //80
+	{0x63, 0x50}, //Double_AG 50->30
+	{0x64, 0x41},
+
+	{0x66, 0x42},
+	{0x67, 0x20},
+
+	{0x6a, 0x80}, //8a
+	{0x6b, 0x84}, //74
+	{0x6c, 0x80}, //7e //7a
+	{0x6d, 0x80}, //8e
+
+	/////// PAGE 11 START ///////
+	{0x03, 0x11},
+	{0x10, 0x7f},
+	{0x11, 0x40},
+	{0x12, 0x0a}, // Blue Max-Filter Delete
+	{0x13, 0xbb},
+
+	{0x26, 0x31}, // Double_AG 31->20
+	{0x27, 0x34}, // Double_AG 34->22
+	{0x28, 0x0f},
+	{0x29, 0x10},
+	{0x2b, 0x30},
+	{0x2c, 0x32},
+
+	//Out2 D-LPF th
+	{0x30, 0x70},
+	{0x31, 0x10},
+	{0x32, 0x58},
+	{0x33, 0x09},
+	{0x34, 0x06},
+	{0x35, 0x03},
+
+	//Out1 D-LPF th
+	{0x36, 0x70},
+	{0x37, 0x18},
+	{0x38, 0x58},
+	{0x39, 0x09},
+	{0x3a, 0x06},
+	{0x3b, 0x03},
+
+	//Indoor D-LPF th
+	{0x3c, 0x80},
+	{0x3d, 0x18},
+	{0x3e, 0xa0}, //80
+	{0x3f, 0x0c},
+	{0x40, 0x09},
+	{0x41, 0x06},
+
+	{0x42, 0x80},
+	{0x43, 0x18},
+	{0x44, 0xa0}, //80
+	{0x45, 0x12},
+	{0x46, 0x10},
+	{0x47, 0x10},
+
+	{0x48, 0x90},
+	{0x49, 0x40},
+	{0x4a, 0x80},
+	{0x4b, 0x13},
+	{0x4c, 0x10},
+	{0x4d, 0x11},
+
+	{0x4e, 0x80},
+	{0x4f, 0x30},
+	{0x50, 0x80},
+	{0x51, 0x13},
+	{0x52, 0x10},
+	{0x53, 0x13},
+
+	{0x54, 0x11},
+	{0x55, 0x17},
+	{0x56, 0x20},
+	{0x57, 0x01},
+	{0x58, 0x00},
+	{0x59, 0x00},
+
+	{0x5a, 0x1f}, //18
+	{0x5b, 0x00},
+	{0x5c, 0x00},
+
+	{0x60, 0x3f},
+	{0x62, 0x60},
+	{0x70, 0x06},
+
+	/////// PAGE 12 START ///////
+	{0x03, 0x12},
+	{0x20, 0x0f},
+	{0x21, 0x0f},
+
+	{0x25, 0x00}, //0x30
+
+	{0x28, 0x00},
+	{0x29, 0x00},
+	{0x2a, 0x00},
+
+	{0x30, 0x50},
+	{0x31, 0x18},
+	{0x32, 0x32},
+	{0x33, 0x40},
+	{0x34, 0x50},
+	{0x35, 0x70},
+	{0x36, 0xa0},
+
+	//Out2 th
+	{0x40, 0xa0},
+	{0x41, 0x40},
+	{0x42, 0xa0},
+	{0x43, 0x90},
+	{0x44, 0x90},
+	{0x45, 0x80},
+
+	//Out1 th
+	{0x46, 0xb0},
+	{0x47, 0x55},
+	{0x48, 0xa0},
+	{0x49, 0x90},
+	{0x4a, 0x90},
+	{0x4b, 0x80},
+
+	//Indoor th
+	{0x4c, 0xb0},
+	{0x4d, 0x40},
+	{0x4e, 0x90},
+	{0x4f, 0x90},
+	{0x50, 0xa0},
+	{0x51, 0x80},
+
+	//Dark1 th
+	{0x52, 0xb0},
+	{0x53, 0x60},
+	{0x54, 0xc0},
+	{0x55, 0xc0},
+	{0x56, 0xc0},
+	{0x57, 0x80},
+
+	//Dark2 th
+	{0x58, 0x90},
+	{0x59, 0x40},
+	{0x5a, 0xd0},
+	{0x5b, 0xd0},
+	{0x5c, 0xe0},
+	{0x5d, 0x80},
+
+	//Dark3 th
+	{0x5e, 0x88},
+	{0x5f, 0x40},
+	{0x60, 0xe0},
+	{0x61, 0xe0},
+	{0x62, 0xe0},
+	{0x63, 0x80},
+
+	{0x70, 0x15},
+	{0x71, 0x01}, //Don't Touch register
+
+	{0x72, 0x18},
+	{0x73, 0x01}, //Don't Touch register
+
+	{0x74, 0x25},
+	{0x75, 0x15},
+
+	{0x80, 0x20},
+	{0x81, 0x40},
+	{0x82, 0x65},
+	{0x85, 0x1a},
+	{0x88, 0x00},
+	{0x89, 0x00},
+	{0x90, 0x5d}, //For Preview
+
+	//Dont Touch register
+	{0xD0, 0x0c},
+	{0xD1, 0x80},
+	{0xD2, 0x67},
+	{0xD3, 0x00},
+	{0xD4, 0x00},
+	{0xD5, 0x02},
+	{0xD6, 0xff},
+	{0xD7, 0x18},
+	//End
+	{0x3b, 0x06},
+	{0x3c, 0x06},
+
+	{0xc5, 0x00},//55->48
+	{0xc6, 0x00},//48->40
+
+	/////// PAGE 13 START ///////
+	{0x03, 0x13},
+	//Edge
+	{0x10, 0xcb},
+	{0x11, 0x7b},
+	{0x12, 0x07},
+	{0x14, 0x00},
+
+	{0x20, 0x15},
+	{0x21, 0x13},
+	{0x22, 0x33},
+	{0x23, 0x05},
+	{0x24, 0x09},
+
+	{0x25, 0x0a},
+
+	{0x26, 0x18},
+	{0x27, 0x30},
+	{0x29, 0x12},
+	{0x2a, 0x50},
+
+	//Low clip th
+	{0x2b, 0x02},
+	{0x2c, 0x02},
+	{0x25, 0x06},
+	{0x2d, 0x0c},
+	{0x2e, 0x12},
+	{0x2f, 0x12},
+
+	//Out2 Edge
+	{0x50, 0x10},
+	{0x51, 0x14},
+	{0x52, 0x12},
+	{0x53, 0x0c},
+	{0x54, 0x0f},
+	{0x55, 0x0c},
+
+	//Out1 Edge
+	{0x56, 0x10},
+	{0x57, 0x13},
+	{0x58, 0x12},
+	{0x59, 0x0c},
+	{0x5a, 0x0f},
+	{0x5b, 0x0c},
+
+	//Indoor Edge
+	{0x5c, 0x0a},
+	{0x5d, 0x0b},
+	{0x5e, 0x0a},
+	{0x5f, 0x08},
+	{0x60, 0x09},
+	{0x61, 0x08},
+
+	//Dark1 Edge
+	{0x62, 0x08},
+	{0x63, 0x08},
+	{0x64, 0x08},
+	{0x65, 0x06},
+	{0x66, 0x06},
+	{0x67, 0x06},
+
+	//Dark2 Edge
+	{0x68, 0x07},
+	{0x69, 0x07},
+	{0x6a, 0x07},
+	{0x6b, 0x05},
+	{0x6c, 0x05},
+	{0x6d, 0x05},
+
+	//Dark3 Edge
+	{0x6e, 0x07},
+	{0x6f, 0x07},
+	{0x70, 0x07},
+	{0x71, 0x05},
+	{0x72, 0x05},
+	{0x73, 0x05},
+
+	//2DY
+	{0x80, 0xfd},
+	{0x81, 0x1f},
+	{0x82, 0x05},
+	{0x83, 0x31},
+
+	{0x90, 0x05},
+	{0x91, 0x05},
+	{0x92, 0x33},
+	{0x93, 0x30},
+	{0x94, 0x03},
+	{0x95, 0x14},
+	{0x97, 0x20},
+	{0x99, 0x20},
+
+	{0xa0, 0x01},
+	{0xa1, 0x02},
+	{0xa2, 0x01},
+	{0xa3, 0x02},
+	{0xa4, 0x05},
+	{0xa5, 0x05},
+	{0xa6, 0x07},
+	{0xa7, 0x08},
+	{0xa8, 0x07},
+	{0xa9, 0x08},
+	{0xaa, 0x07},
+	{0xab, 0x08},
+
+	//Out2
+	{0xb0, 0x22},
+	{0xb1, 0x2a},
+	{0xb2, 0x28},
+	{0xb3, 0x22},
+	{0xb4, 0x2a},
+	{0xb5, 0x28},
+
+	//Out1
+	{0xb6, 0x22},
+	{0xb7, 0x2a},
+	{0xb8, 0x28},
+	{0xb9, 0x22},
+	{0xba, 0x2a},
+	{0xbb, 0x28},
+
+	//Indoor
+	{0xbc, 0x25},
+	{0xbd, 0x2a},
+	{0xbe, 0x27},
+	{0xbf, 0x25},
+	{0xc0, 0x2a},
+	{0xc1, 0x27},
+
+	//Dark1
+	{0xc2, 0x1e},
+	{0xc3, 0x24},
+	{0xc4, 0x20},
+	{0xc5, 0x1e},
+	{0xc6, 0x24},
+	{0xc7, 0x20},
+
+	//Dark2
+	{0xc8, 0x18},
+	{0xc9, 0x20},
+	{0xca, 0x1e},
+	{0xcb, 0x18},
+	{0xcc, 0x20},
+	{0xcd, 0x1e},
+
+	//Dark3
+	{0xce, 0x18},
+	{0xcf, 0x20},
+	{0xd0, 0x1e},
+	{0xd1, 0x18},
+	{0xd2, 0x20},
+	{0xd3, 0x1e},
+
+	/////// PAGE 14 START ///////
+	{0x03, 0x14},
+	{0x10, 0x11},
+
+	{0x14, 0x80}, // GX
+	{0x15, 0x80}, // GY
+	{0x16, 0x80}, // RX
+	{0x17, 0x80}, // RY
+	{0x18, 0x80}, // BX
+	{0x19, 0x80}, // BY
+
+	{0x20, 0x60}, //X 60 //a0
+	{0x21, 0x80}, //Y
+
+	{0x22, 0x80},
+	{0x23, 0x80},
+	{0x24, 0x80},
+
+	{0x30, 0xc8},
+	{0x31, 0x2b},
+	{0x32, 0x00},
+	{0x33, 0x00},
+	{0x34, 0x90},
+
+	{0x40, 0x48}, //31
+	{0x50, 0x34}, //23 //32
+	{0x60, 0x29}, //1a //27
+	{0x70, 0x34}, //23 //32
+
+	/////// PAGE 15 START ///////
+	{0x03, 0x15},
+	{0x10, 0x0f},
+
+	//Rstep H 16
+	//Rstep L 14
+	{0x14, 0x42}, //CMCOFSGH_Day //4c
+	{0x15, 0x32}, //CMCOFSGM_CWF //3c
+	{0x16, 0x24}, //CMCOFSGL_A //2e
+	{0x17, 0x2f}, //CMC SIGN
+
+	//CMC_Default_CWF
+	{0x30, 0x8f},
+	{0x31, 0x59},
+	{0x32, 0x0a},
+	{0x33, 0x15},
+	{0x34, 0x5b},
+	{0x35, 0x06},
+	{0x36, 0x07},
+	{0x37, 0x40},
+	{0x38, 0x87}, //86
+
+	//CMC OFS L_A
+	{0x40, 0x92},
+	{0x41, 0x1b},
+	{0x42, 0x89},
+	{0x43, 0x81},
+	{0x44, 0x00},
+	{0x45, 0x01},
+	{0x46, 0x89},
+	{0x47, 0x9e},
+	{0x48, 0x28},
+
+
+	//CMC POFS H_DAY
+	{0x50, 0x02},
+	{0x51, 0x82},
+	{0x52, 0x00},
+	{0x53, 0x07},
+	{0x54, 0x11},
+	{0x55, 0x98},
+	{0x56, 0x00},
+	{0x57, 0x0b},
+	{0x58, 0x8b},
+
+	{0x80, 0x03},
+	{0x85, 0x40},
+	{0x87, 0x02},
+	{0x88, 0x00},
+	{0x89, 0x00},
+	{0x8a, 0x00},
+
+	/////// PAGE 16 START ///////
+	{0x03, 0x16},
+	{0x10, 0x31},
+	{0x18, 0x5e},// Double_AG 5e->37
+	{0x19, 0x5d},// Double_AG 5e->36
+	{0x1a, 0x0e},
+	{0x1b, 0x01},
+	{0x1c, 0xdc},
+	{0x1d, 0xfe},
+
+	//GMA Default
+	{0x30, 0x00},
+	{0x31, 0x0a},
+	{0x32, 0x1f},
+	{0x33, 0x33},
+	{0x34, 0x53},
+	{0x35, 0x6c},
+	{0x36, 0x81},
+	{0x37, 0x94},
+	{0x38, 0xa4},
+	{0x39, 0xb3},
+	{0x3a, 0xc0},
+	{0x3b, 0xcb},
+	{0x3c, 0xd5},
+	{0x3d, 0xde},
+	{0x3e, 0xe6},
+	{0x3f, 0xee},
+	{0x40, 0xf5},
+	{0x41, 0xfc},
+	{0x42, 0xff},
+
+	{0x50, 0x00},
+	{0x51, 0x09},
+	{0x52, 0x1f},
+	{0x53, 0x37},
+	{0x54, 0x5b},
+	{0x55, 0x76},
+	{0x56, 0x8d},
+	{0x57, 0xa1},
+	{0x58, 0xb2},
+	{0x59, 0xbe},
+	{0x5a, 0xc9},
+	{0x5b, 0xd2},
+	{0x5c, 0xdb},
+	{0x5d, 0xe3},
+	{0x5e, 0xeb},
+	{0x5f, 0xf0},
+	{0x60, 0xf5},
+	{0x61, 0xf7},
+	{0x62, 0xf8},
+
+	{0x70, 0x00},
+	{0x71, 0x08},
+	{0x72, 0x17},
+	{0x73, 0x2f},
+	{0x74, 0x53},
+	{0x75, 0x6c},
+	{0x76, 0x81},
+	{0x77, 0x94},
+	{0x78, 0xa4},
+	{0x79, 0xb3},
+	{0x7a, 0xc0},
+	{0x7b, 0xcb},
+	{0x7c, 0xd5},
+	{0x7d, 0xde},
+	{0x7e, 0xe6},
+	{0x7f, 0xee},
+	{0x80, 0xf4},
+	{0x81, 0xfa},
+	{0x82, 0xff},
+
+	/////// PAGE 17 START ///////
+	{0x03, 0x17},
+	{0x10, 0xf7},
+
+	/////// PAGE 20 START ///////
+	{0x03, 0x20},
+	{0x11, 0x1c},
+	{0x18, 0x30},
+	{0x1a, 0x08},
+	{0x20, 0x01}, //05_lowtemp Y Mean off
+	{0x21, 0x30},
+	{0x22, 0x10},
+	{0x23, 0x00},
+	{0x24, 0x00}, //Uniform Scene Off
+
+	{0x28, 0xe7},
+	{0x29, 0x0d}, //20100305 ad->0d
+	{0x2a, 0xff},
+	{0x2b, 0x04}, //f4->Adaptive off
+
+	{0x2c, 0xc2},
+	{0x2d, 0xcf},  //fe->AE Speed option
+	{0x2e, 0x33},
+	{0x30, 0x78}, //f8
+	{0x32, 0x03},
+	{0x33, 0x2e},
+	{0x34, 0x30},
+	{0x35, 0xd4},
+	{0x36, 0xfe},
+	{0x37, 0x32},
+	{0x38, 0x04},
+
+	{0x39, 0x22}, //AE_escapeC10
+	{0x3a, 0xde}, //AE_escapeC11
+
+	{0x3b, 0x22}, //AE_escapeC1
+	{0x3c, 0xde}, //AE_escapeC2
+
+	{0x50, 0x45},
+	{0x51, 0x88},
+
+	{0x56, 0x03},
+	{0x57, 0xf7},
+	{0x58, 0x14},
+	{0x59, 0x88},
+	{0x5a, 0x04},
+
+	{0x60, 0x55}, // AEWGT1
+	{0x61, 0x55}, // AEWGT2
+	{0x62, 0x6a}, // AEWGT3
+	{0x63, 0xa9}, // AEWGT4
+	{0x64, 0x6a}, // AEWGT5
+	{0x65, 0xa9}, // AEWGT6
+	{0x66, 0x6a}, // AEWGT7
+	{0x67, 0xa9}, // AEWGT8
+	{0x68, 0x6b}, // AEWGT9
+	{0x69, 0xe9}, // AEWGT10
+	{0x6a, 0x6a}, // AEWGT11
+	{0x6b, 0xa9}, // AEWGT12
+	{0x6c, 0x6a}, // AEWGT13
+	{0x6d, 0xa9}, // AEWGT14
+	{0x6e, 0x55}, // AEWGT15
+	{0x6f, 0x55}, // AEWGT16
+
+	{0x70, 0x76}, //6e
+	{0x71, 0x00}, //82(+8)->+0
+
+	// haunting control
+	{0x76, 0x43},
+	{0x77, 0xe2}, //04 //f2
+	{0x78, 0x23}, //Yth1
+	{0x79, 0x42}, //Yth2 //46
+	{0x7a, 0x23}, //23
+	{0x7b, 0x22}, //22
+	{0x7d, 0x23},
+
+	{0x83, 0x01}, //EXP Normal 33.33 fps
+	{0x84, 0x5f},
+	{0x85, 0x00},
+
+	{0x86, 0x02}, //EXPMin 5859.38 fps
+	{0x87, 0x00},
+
+	//{0x88, 0x04}, //EXP Max 10.00 fps
+	//{0x89, 0x92},
+	//{0x8a, 0x00},
+
+	{0x88, 0x02}, //EXP Max 15.00 fps
+	{0x89, 0xbe},
+	{0x8a, 0x00},
+
+	{0x8B, 0x75}, //EXP100
+	{0x8C, 0x00},
+	{0x8D, 0x61}, //EXP120
+	{0x8E, 0x00},
+
+	{0x9c, 0x18}, //EXP Limit 488.28 fps
+	{0x9d, 0x00},
+	{0x9e, 0x02}, //EXP Unit
+	{0x9f, 0x00},
+
+	{0xb0, 0x18},
+	{0xb1, 0x14}, //ADC 400->560
+	{0xb2, 0xe0}, //d0
+	{0xb3, 0x18},
+	{0xb4, 0x1a},
+	{0xb5, 0x44},
+	{0xb6, 0x2f},
+	{0xb7, 0x28},
+	{0xb8, 0x25},
+	{0xb9, 0x22},
+	{0xba, 0x21},
+	{0xbb, 0x20},
+	{0xbc, 0x1f},
+	{0xbd, 0x1f},
+
+	{0xc8, 0x80},
+	{0xc9, 0x40},
+
+	/////// PAGE 22 START ///////
+	{0x03, 0x22},
+	{0x10, 0xfd},
+	{0x11, 0x2e},
+	{0x19, 0x01}, // Low On //
+	{0x20, 0x30},
+	{0x21, 0x80},
+	{0x24, 0x01},
+	//{0x25, 0x00}, //7f New Lock Cond & New light stable
+
+	{0x30, 0x80},
+	{0x31, 0x80},
+	{0x38, 0x11},
+	{0x39, 0x34},
+
+	{0x40, 0xf4},
+	{0x41, 0x55}, //44
+	{0x42, 0x33}, //43
+
+	{0x43, 0xf6},
+	{0x44, 0x55}, //44
+	{0x45, 0x44}, //33
+
+	{0x46, 0x00},
+	{0x50, 0xb2},
+	{0x51, 0x81},
+	{0x52, 0x98},
+
+	{0x80, 0x40}, //3e
+	{0x81, 0x20},
+	{0x82, 0x3e},
+
+	{0x83, 0x5e}, //5e
+	{0x84, 0x1e}, //24
+	{0x85, 0x5e}, //54 //56 //5a
+	{0x86, 0x22}, //24 //22
+
+	{0x87, 0x49},
+	{0x88, 0x39},
+	{0x89, 0x37}, //38
+	{0x8a, 0x28}, //2a
+
+	{0x8b, 0x41}, //47
+	{0x8c, 0x39},
+	{0x8d, 0x34},
+	{0x8e, 0x28}, //2c
+
+	{0x8f, 0x53}, //4e
+	{0x90, 0x52}, //4d
+	{0x91, 0x51}, //4c
+	{0x92, 0x4e}, //4a
+	{0x93, 0x4a}, //46
+	{0x94, 0x45},
+	{0x95, 0x3d},
+	{0x96, 0x31},
+	{0x97, 0x28},
+	{0x98, 0x24},
+	{0x99, 0x20},
+	{0x9a, 0x20},
+
+	{0x9b, 0x77},
+	{0x9c, 0x77},
+	{0x9d, 0x48},
+	{0x9e, 0x38},
+	{0x9f, 0x30},
+
+	{0xa0, 0x60},
+	{0xa1, 0x34},
+	{0xa2, 0x6f},
+	{0xa3, 0xff},
+
+	{0xa4, 0x14}, //1500fps
+	{0xa5, 0x2c}, // 700fps
+	{0xa6, 0xcf},
+
+	{0xad, 0x40},
+	{0xae, 0x4a},
+
+	{0xaf, 0x28},  // low temp Rgain
+	{0xb0, 0x26},  // low temp Rgain
+
+	{0xb1, 0x00}, //0x20 -> 0x00 0405 modify
+	{0xb4, 0xea},
+	{0xb8, 0xa0}, //a2: b-2, R+2  //b4 B-3, R+4 lowtemp
+	{0xb9, 0x00},
+
+	/////// PAGE 20 ///////
+	{0x03, 0x20},
+	{0x10, 0x8c},
+
+	// PAGE 20
+	{0x03, 0x20}, //page 20
+	{0x10, 0x9c}, //ae off
+
+	// PAGE 22
+	{0x03, 0x22}, //page 22
+	{0x10, 0xe9}, //awb off
+
+	// PAGE 0
+	{0x03, 0x00},
+	{0x0e, 0x03}, //PLL On
+	{0x0e, 0x73}, //PLLx2
+
+	{0x03, 0x00}, // Dummy 750us
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+	{0x03, 0x00},
+
+	{0x03, 0x00}, // Page 0
+	{0x01, 0x50}, // Sleep Off
+
+	ENDMARKER,
+};
+
+
+static const struct regval_list hi253_qcif_regs[] = {
+	{0x03, 0x00}, {0x10, 0x00},
+	{0x03, 0x18}, {0x12, 0x20},
+	{0x10, 0x07}, {0x11, 0x00},
+	{0x20, 0x00}, {0x21, 0xc0},
+	{0x22, 0x00}, {0x23, 0x90},
+	{0x24, 0x00}, {0x25, 0x08},
+	{0x26, 0x00}, {0x27, 0x00},
+	{0x28, 0x00}, {0x29, 0xb8},
+	{0x2a, 0x00}, {0x2b, 0x90},
+	{0x2c, 0x42}, {0x2d, 0xaa},
+	{0x2e, 0x42}, {0x2f, 0xaa},
+	{0x30, 0x2c},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_cif_regs[] = {
+	{0x03, 0x00}, {0x10, 0x00},
+	{0x03, 0x18}, {0x12, 0x20},
+	{0x10, 0x07}, {0x11, 0x00},
+	{0x20, 0x01}, {0x21, 0x80},
+	{0x22, 0x01}, {0x23, 0x20},
+	{0x24, 0x00}, {0x25, 0x10},
+	{0x26, 0x00}, {0x27, 0x00},
+	{0x28, 0x01}, {0x29, 0x70},
+	{0x2a, 0x01}, {0x2b, 0x20},
+	{0x2c, 0x21}, {0x2d, 0x55},
+	{0x2e, 0x21}, {0x2f, 0x55},
+	{0x30, 0x4b},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_vga_regs[] = {
+	{0x03, 0x00}, {0x10, 0x00},
+	{0x03, 0x18}, {0x10, 0x07},
+	{0x11, 0x00}, {0x12, 0x20},
+	{0x20, 0x02}, {0x21, 0x84},
+	{0x22, 0x01}, {0x23, 0xe0},
+	{0x24, 0x00}, {0x25, 0x04},
+	{0x26, 0x00}, {0x27, 0x00},
+	{0x28, 0x02}, {0x29, 0x84},
+	{0x2a, 0x01}, {0x2b, 0xe0},
+	{0x2c, 0x14}, {0x2d, 0x00},
+	{0x2e, 0x14}, {0x2f, 0x00},
+	{0x30, 0x66},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_svga_regs[] = {
+	{0x03, 0x00}, {0x10, 0x11},
+	{0x03, 0x18}, {0x10, 0x00},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_xga_regs[] = {
+	{0x03, 0x00}, {0x10, 0x00},
+	{0x03, 0x18}, {0x12, 0x20},
+	{0x10, 0x07}, {0x11, 0x00},
+	{0x20, 0x05}, {0x21, 0x20},
+	{0x22, 0x03}, {0x23, 0xd8},
+	{0x24, 0x00}, {0x25, 0x90},
+	{0x26, 0x00}, {0x27, 0x6c},
+	{0x28, 0x04}, {0x29, 0x90},
+	{0x2a, 0x03}, {0x2b, 0x6c},
+	{0x2c, 0x09}, {0x2d, 0xc1},
+	{0x2e, 0x09}, {0x2f, 0xc1},
+	{0x30, 0x56},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_sxga_regs[] = {
+	{0x03, 0x00}, {0x10, 0x00},
+	{0x03, 0x18}, {0x12, 0x20},
+	{0x10, 0x07}, {0x11, 0x00},
+	{0x20, 0x06}, {0x21, 0x40},
+	{0x22, 0x04}, {0x23, 0xb0},
+	{0x24, 0x00}, {0x25, 0xa0},
+	{0x26, 0x00}, {0x27, 0x58},
+	{0x28, 0x05}, {0x29, 0xa0},
+	{0x2a, 0x04}, {0x2b, 0x58},
+	{0x2c, 0x08}, {0x2d, 0x00},
+	{0x2e, 0x08}, {0x2f, 0x00},
+	{0x30, 0x2c},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_uxga_regs[] = {
+	{0x03, 0x00}, {0x10, 0x00},
+	{0x03, 0x18}, {0x10, 0x00}, //close scaling
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_wb_auto_regs[] = {
+	{0x03, 0x22}, {0x11, 0x2e},
+	{0x83, 0x6e}, {0x84, 0x14},
+	{0x85, 0x69}, {0x86, 0x14},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_wb_incandescence_regs[] = {
+	{0x03, 0x22}, {0x11, 0x28},
+	{0x80, 0x29}, {0x82, 0x54},
+	{0x83, 0x2e}, {0x84, 0x23},
+	{0x85, 0x58}, {0x86, 0x4f},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_wb_daylight_regs[] = {
+	{0x03, 0x22}, {0x11, 0x28},
+	{0x80, 0x59}, {0x82, 0x29},
+	{0x83, 0x60}, {0x84, 0x50},
+	{0x85, 0x2f}, {0x86, 0x23},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_wb_fluorescent_regs[] = {
+	{0x03, 0x22}, {0x11, 0x28},
+	{0x80, 0x41}, {0x82, 0x42},
+	{0x83, 0x44}, {0x84, 0x34},
+	{0x85, 0x46}, {0x86, 0x3a},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_wb_cloud_regs[] = {
+	{0x03, 0x22}, {0x11, 0x28},
+	{0x80, 0x71}, {0x82, 0x2b},
+	{0x83, 0x72}, {0x84, 0x70},
+	{0x85, 0x2b}, {0x86, 0x28},
+	ENDMARKER,
+};
+
+static const struct mode_list hi253_balance[] = {
+	{0, hi253_wb_auto_regs}, {1, hi253_wb_incandescence_regs},
+	{2, hi253_wb_daylight_regs}, {3, hi253_wb_fluorescent_regs},
+	{4, hi253_wb_cloud_regs},
+};
+
+
+static const struct regval_list hi253_effect_normal_regs[] = {
+	{0x03, 0x10}, {0x11, 0x03},
+	{0x12, 0x30}, {0x13, 0x02},
+	{0x44, 0x80}, {0x45, 0x80},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_effect_grayscale_regs[] = {
+	{0x03, 0x10}, {0x11, 0x03},
+	{0x12, 0x03}, {0x13, 0x02},
+	{0x40, 0x00}, {0x44, 0x80},
+	{0x45, 0x80},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_effect_sepia_regs[] = {
+	{0x03, 0x10}, {0x11, 0x03},
+	{0x12, 0x33}, {0x13, 0x00},
+	{0x44, 0x70}, {0x45, 0x98},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_effect_colorinv_regs[] = {
+	{0x03, 0x10}, {0x11, 0x03},
+	{0x12, 0x08}, {0x13, 0x02},
+	{0x14, 0x00},
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_effect_sepiabluel_regs[] = {
+	{0x03, 0x10}, {0x11, 0x03},
+	{0x12, 0x03}, {0x40, 0x00},
+	{0x13, 0x02}, {0x44, 0xb0},
+	{0x45, 0x40},
+	ENDMARKER,
+};
+
+static const struct mode_list hi253_effect[] = {
+	{0, hi253_effect_normal_regs}, {1, hi253_effect_grayscale_regs},
+	{2, hi253_effect_sepia_regs}, {3, hi253_effect_colorinv_regs},
+	{4, hi253_effect_sepiabluel_regs},
+};
+
+#define HI253_SIZE(n, w, h, r) \
+	{.name = n, .width = w , .height = h, .regs = r }
+
+static struct hi253_win_size hi253_supported_win_sizes[] = {
+	HI253_SIZE("QCIF", W_QCIF, H_QCIF, hi253_qcif_regs),
+	HI253_SIZE("CIF", W_CIF, H_CIF, hi253_cif_regs),
+	HI253_SIZE("VGA", W_VGA, H_VGA, hi253_vga_regs),
+
+	HI253_SIZE("SVGA", W_SVGA, H_SVGA, hi253_svga_regs),
+	HI253_SIZE("XGA", W_XGA, H_XGA, hi253_xga_regs),
+	HI253_SIZE("SXGA", W_SXGA, H_SXGA, hi253_sxga_regs),
+	HI253_SIZE("UXGA", W_UXGA, H_UXGA, hi253_uxga_regs),
+};
+
+#define N_WIN_SIZES (ARRAY_SIZE(hi253_supported_win_sizes))
+
+static const struct regval_list hi253_yuv422_regs[] = {
+	ENDMARKER,
+};
+
+static const struct regval_list hi253_rgb565_regs[] = {
+	ENDMARKER,
+};
+
+static enum v4l2_mbus_pixelcode hi253_codes[] = {
+	V4L2_MBUS_FMT_YUYV8_2X8,
+	V4L2_MBUS_FMT_YUYV8_1_5X8,
+	V4L2_MBUS_FMT_JZYUYV8_1_5X8,
+};
+
+/*
+ * Supported controls
+ */
+static const struct v4l2_queryctrl hi253_controls[] = {
+	{
+		.id		= V4L2_CID_PRIVATE_BALANCE,
+		.type		= V4L2_CTRL_TYPE_MENU,
+		.name		= "whitebalance",
+		.minimum	= 0,
+		.maximum	= 4,
+		.step		= 1,
+		.default_value	= 0,
+	}, {
+		.id		= V4L2_CID_PRIVATE_EFFECT,
+		.type		= V4L2_CTRL_TYPE_MENU,
+		.name		= "effect",
+		.minimum	= 0,
+		.maximum	= 4,
+		.step		= 1,
+		.default_value	= 0,
+	}, {
+		.id		= V4L2_CID_VFLIP,
+		.type		= V4L2_CTRL_TYPE_BOOLEAN,
+		.name		= "Flip Vertically",
+		.minimum	= 0,
+		.maximum	= 1,
+		.step		= 1,
+		.default_value	= 0,
+	}, {
+		.id		= V4L2_CID_HFLIP,
+		.type		= V4L2_CTRL_TYPE_BOOLEAN,
+		.name		= "Flip Horizontally",
+		.minimum	= 0,
+		.maximum	= 1,
+		.step		= 1,
+		.default_value	= 0,
+	},
+};
+
+
+/*
+ * Supported balance menus
+ */
+static const struct v4l2_querymenu hi253_balance_menus[] = {
+	{
+		.id		= V4L2_CID_PRIVATE_BALANCE,
+		.index		= 0,
+		.name		= "auto",
+	}, {
+		.id		= V4L2_CID_PRIVATE_BALANCE,
+		.index		= 1,
+		.name		= "incandescent",
+	}, {
+		.id		= V4L2_CID_PRIVATE_BALANCE,
+		.index		= 2,
+		.name		= "fluorescent",
+	},  {
+		.id		= V4L2_CID_PRIVATE_BALANCE,
+		.index		= 3,
+		.name		= "daylight",
+	},  {
+		.id		= V4L2_CID_PRIVATE_BALANCE,
+		.index		= 4,
+		.name		= "cloudy-daylight",
+	},
+
+};
+
+/*
+ * Supported effect menus
+ */
+static const struct v4l2_querymenu hi253_effect_menus[] = {
+	{
+		.id		= V4L2_CID_PRIVATE_EFFECT,
+		.index		= 0,
+		.name		= "none",
+	}, {
+		.id		= V4L2_CID_PRIVATE_EFFECT,
+		.index		= 1,
+		.name		= "mono",
+	}, {
+		.id		= V4L2_CID_PRIVATE_EFFECT,
+		.index		= 2,
+		.name		= "sepia",
+	},  {
+		.id		= V4L2_CID_PRIVATE_EFFECT,
+		.index		= 3,
+		.name		= "negative",
+	}, {
+		.id		= V4L2_CID_PRIVATE_EFFECT,
+		.index		= 4,
+		.name		= "aqua",
+	},
+};
+
+/*
+ * General functions
+ */
+static struct hi253_priv *to_hi253(const struct i2c_client *client)
+{
+	return container_of(i2c_get_clientdata(client), struct hi253_priv,
+			    subdev);
+}
+
+static int hi253_write_array(struct i2c_client *client,
+			      const struct regval_list *vals)
+{
+	int ret;
+
+	while ((vals->reg_num != 0xff) || (vals->value != 0xff)) {
+		ret = i2c_smbus_write_byte_data(client,
+						vals->reg_num, vals->value);
+		dev_vdbg(&client->dev, "array: 0x%02x, 0x%02x",
+			 vals->reg_num, vals->value);
+
+		if (ret < 0)
+			return ret;
+		vals++;
+	}
+	return 0;
+}
+
+static int inline hi253_page_select(struct i2c_client *client,
+				u8 page)
+{
+	int ret;
+	ret = i2c_smbus_write_byte_data(client, REG_PAGE_MODE, page);
+	if(ret) {
+		dev_err(&client->dev, "%s error!\n", __FUNCTION__);
+		return ret;
+	}
+	return 0;
+}
+
+static int hi253_mask_set(struct i2c_client *client,
+			   u8  reg, u8  mask, u8  set)
+{
+	s32 val = i2c_smbus_read_byte_data(client, reg);
+	if (val < 0)
+		return val;
+
+	val &= ~mask;
+	val |= set & mask;
+
+	dev_vdbg(&client->dev, "masks: 0x%02x, 0x%02x", reg, val);
+
+	return i2c_smbus_write_byte_data(client, reg, val);
+}
+
+/*
+ * soc_camera_ops functions
+ */
+static int hi253_s_stream(struct v4l2_subdev *sd, int enable)
+{
+	return 0;
+}
+
+static int hi253_set_bus_param(struct soc_camera_device *icd,
+				unsigned long flags)
+{
+	struct soc_camera_link *icl = to_soc_camera_link(icd);
+	unsigned long width_flag = flags & SOCAM_DATAWIDTH_MASK;
+
+	/* Only one width bit may be set */
+	if (!is_power_of_2(width_flag))
+		return -EINVAL;
+
+	if (icl->set_bus_param)
+		return icl->set_bus_param(icl, width_flag);
+
+	/*
+	 * Without board specific bus width settings we support only the
+	 * sensors native bus width which are tested working
+	 */
+	if (width_flag & SOCAM_DATAWIDTH_8)
+		return 0;
+
+	return 0;
+}
+
+static unsigned long hi253_query_bus_param(struct soc_camera_device *icd)
+{
+	struct soc_camera_link *icl = to_soc_camera_link(icd);
+	unsigned long flags = SOCAM_PCLK_SAMPLE_FALLING | SOCAM_MASTER |
+		SOCAM_VSYNC_ACTIVE_HIGH | SOCAM_HSYNC_ACTIVE_HIGH |
+		SOCAM_DATA_ACTIVE_HIGH;
+
+	if (icl->query_bus_param)
+		flags |= icl->query_bus_param(icl) & SOCAM_DATAWIDTH_MASK;
+	else
+		flags |= SOCAM_DATAWIDTH_8;
+
+	return soc_camera_apply_sensor_flags(icl, flags);
+}
+
+static int hi253_g_ctrl(struct v4l2_subdev *sd, struct v4l2_control *ctrl)
+{
+	struct i2c_client  *client = v4l2_get_subdevdata(sd);
+	struct hi253_priv *priv = to_hi253(client);
+
+	switch (ctrl->id) {
+	case V4L2_CID_VFLIP:
+		ctrl->value = priv->flag_vflip;
+		break;
+	case V4L2_CID_HFLIP:
+		ctrl->value = priv->flag_hflip;
+		break;
+
+	case V4L2_CID_PRIVATE_BALANCE:
+		ctrl->value = priv->balance_value;
+		break;
+	case V4L2_CID_PRIVATE_EFFECT:
+		ctrl->value = priv->effect_value;
+		break;
+	default:
+		break;
+	}
+	return 0;
+}
+
+static int hi253_s_ctrl(struct v4l2_subdev *sd, struct v4l2_control *ctrl)
+{
+	struct i2c_client  *client = v4l2_get_subdevdata(sd);
+	struct hi253_priv *priv = to_hi253(client);
+	int ret = 0;
+	int i = 0;
+	u8 value;
+
+	int balance_count = ARRAY_SIZE(hi253_balance);
+	int effect_count = ARRAY_SIZE(hi253_effect);
+
+	switch (ctrl->id) {
+	case V4L2_CID_PRIVATE_BALANCE:
+		if(ctrl->value > balance_count)
+			return -EINVAL;
+
+		for(i = 0; i < balance_count; i++) {
+			if(ctrl->value == hi253_balance[i].index) {
+				ret = hi253_write_array(client,
+						hi253_balance[ctrl->value].mode_regs);
+				priv->balance_value = ctrl->value;
+				break;
+			}
+		}
+		break;
+
+	case V4L2_CID_PRIVATE_EFFECT:
+		if(ctrl->value > effect_count)
+			return -EINVAL;
+
+		for(i = 0; i < effect_count; i++) {
+			if(ctrl->value == hi253_effect[i].index) {
+				ret = hi253_write_array(client,
+						hi253_effect[ctrl->value].mode_regs);
+				priv->effect_value = ctrl->value;
+				break;
+			}
+		}
+		break;
+
+	case V4L2_CID_VFLIP:
+		value = ctrl->value ? REG11_VFLIP_IMG : 0x00;
+		priv->flag_vflip = ctrl->value ? 1 : 0;
+		hi253_page_select(client, 0x00);
+		ret = hi253_mask_set(client, REG11, REG11_VFLIP_IMG, value);
+		break;
+
+	case V4L2_CID_HFLIP:
+		value = ctrl->value ? REG11_HFLIP_IMG : 0x00;
+		priv->flag_hflip = ctrl->value ? 1 : 0;
+		hi253_page_select(client, 0x00);
+		ret = hi253_mask_set(client, REG11, REG11_HFLIP_IMG, value);
+		break;
+	default:
+		dev_err(&client->dev, "no V4L2 CID: 0x%x ", ctrl->id);
+		return -EINVAL;
+	}
+
+	return ret;
+}
+
+static int hi253_g_chip_ident(struct v4l2_subdev *sd,
+			       struct v4l2_dbg_chip_ident *id)
+{
+	id->ident    = SUPPORT_HIGH_RESOLUTION_PRE;
+	id->revision = 0;
+
+	return 0;
+}
+
+
+static int hi253_querymenu(struct v4l2_subdev *sd,
+					struct v4l2_querymenu *qm)
+{
+	switch (qm->id) {
+	case V4L2_CID_PRIVATE_BALANCE:
+		memcpy(qm->name, hi253_balance_menus[qm->index].name,
+				sizeof(qm->name));
+		break;
+
+	case V4L2_CID_PRIVATE_EFFECT:
+		memcpy(qm->name, hi253_effect_menus[qm->index].name,
+				sizeof(qm->name));
+		break;
+	}
+
+	return 0;
+}
+
+#ifdef CONFIG_VIDEO_ADV_DEBUG
+static int hi253_g_register(struct v4l2_subdev *sd,
+			     struct v4l2_dbg_register *reg)
+{
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	int ret;
+
+	reg->size = 1;
+	if (reg->reg > 0xff)
+		return -EINVAL;
+
+	ret = i2c_smbus_read_byte_data(client, reg->reg);
+	if (ret < 0)
+		return ret;
+
+	reg->val = ret;
+
+	return 0;
+}
+
+static int hi253_s_register(struct v4l2_subdev *sd,
+			     struct v4l2_dbg_register *reg)
+{
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+
+	if (reg->reg > 0xff ||
+	    reg->val > 0xff)
+		return -EINVAL;
+
+	return i2c_smbus_write_byte_data(client, reg->reg, reg->val);
+}
+#endif
+
+/* Select the nearest higher resolution for capture */
+static const struct hi253_win_size *hi253_select_win(u32 *width, u32 *height)
+{
+	int i, default_size = ARRAY_SIZE(hi253_supported_win_sizes) - 1;
+
+	for (i = 0; i < ARRAY_SIZE(hi253_supported_win_sizes); i++) {
+		if (hi253_supported_win_sizes[i].width  >= *width &&
+		    hi253_supported_win_sizes[i].height >= *height) {
+			*width = hi253_supported_win_sizes[i].width;
+			*height = hi253_supported_win_sizes[i].height;
+			return &hi253_supported_win_sizes[i];
+		}
+	}
+
+	*width = hi253_supported_win_sizes[default_size].width;
+	*height = hi253_supported_win_sizes[default_size].height;
+	return &hi253_supported_win_sizes[default_size];
+}
+
+static int hi253_init(struct v4l2_subdev *sd, u32 val)
+{
+	int ret;
+	struct i2c_client  *client = v4l2_get_subdevdata(sd);
+	struct hi253_priv *priv = to_hi253(client);
+
+	int bala_index = priv->balance_value;
+	int effe_index = priv->effect_value;
+
+	/* initialize the sensor with default data */
+	ret = hi253_write_array(client, hi253_init_regs);
+	ret = hi253_write_array(client, hi253_balance[bala_index].mode_regs);
+	ret = hi253_write_array(client, hi253_effect[effe_index].mode_regs);
+	if (ret < 0)
+		goto err;
+
+	dev_info(&client->dev, "%s: Init default", __func__);
+	return 0;
+
+err:
+	dev_err(&client->dev, "%s: Error %d", __func__, ret);
+	return ret;
+}
+
+#if 0
+static int hi253_set_params(struct i2c_client *client, u32 *width, u32 *height,
+			     enum v4l2_mbus_pixelcode code)
+{
+	struct hi253_priv *priv = to_hi253(client);
+	const struct regval_list *selected_cfmt_regs;
+	int ret;
+
+	/* select win */
+	priv->win = hi253_select_win(width, height);
+
+	/* select format */
+	priv->cfmt_code = 0;
+	switch (code) {
+	case V4L2_MBUS_FMT_YUYV8_2X8:
+		dev_dbg(&client->dev, "%s: Selected cfmt YUV422", __func__);
+		selected_cfmt_regs = hi253_rgb565_regs;
+		break;
+	default:
+	case V4L2_MBUS_FMT_YUYV8_1_5X8:
+		dev_dbg(&client->dev, "%s: Selected cfmt YUV422", __func__);
+		selected_cfmt_regs = hi253_yuv422_regs;
+		break;
+	}
+
+	/* initialize the sensor with default data */
+	dev_info(&client->dev, "%s: Init default", __func__);
+	ret = hi253_write_array(client, hi253_init_regs);
+	if (ret < 0)
+		goto err;
+
+	/* set size win */
+	ret = hi253_write_array(client, priv->win->regs);
+	if (ret < 0)
+		goto err;
+
+	priv->cfmt_code = code;
+	*width = priv->win->width;
+	*height = priv->win->height;
+
+	return 0;
+
+err:
+	dev_err(&client->dev, "%s: Error %d", __func__, ret);
+	priv->win = NULL;
+
+	return ret;
+}
+#endif
+
+static int hi253_g_fmt(struct v4l2_subdev *sd,
+			struct v4l2_mbus_framefmt *mf)
+{
+	struct i2c_client  *client = v4l2_get_subdevdata(sd);
+	struct hi253_priv *priv = to_hi253(client);
+
+	mf->width = priv->win->width;
+	mf->height = priv->win->height;
+	mf->code = priv->cfmt_code;
+
+	mf->colorspace = V4L2_COLORSPACE_JPEG;
+	mf->field	= V4L2_FIELD_NONE;
+
+	return 0;
+}
+
+static int hi253_s_fmt(struct v4l2_subdev *sd,
+			struct v4l2_mbus_framefmt *mf)
+{
+	/* current do not support set format, use unify format yuv422i */
+	struct i2c_client  *client = v4l2_get_subdevdata(sd);
+	struct hi253_priv *priv = to_hi253(client);
+	int ret;
+
+	priv->win = hi253_select_win(&mf->width, &mf->height);
+	/* set size win */
+	ret = hi253_write_array(client, priv->win->regs);
+	if (ret < 0) {
+		dev_err(&client->dev, "%s: Error\n", __func__);
+		return ret;
+	}
+	return 0;
+}
+
+static int hi253_try_fmt(struct v4l2_subdev *sd,
+			  struct v4l2_mbus_framefmt *mf)
+{
+	const struct hi253_win_size *win;
+	struct i2c_client *client = v4l2_get_subdevdata(sd);
+	/*
+	 * select suitable win
+	 */
+	win = hi253_select_win(&mf->width, &mf->height);
+
+	if(mf->field == V4L2_FIELD_ANY) {
+		mf->field = V4L2_FIELD_NONE;
+	} else if (mf->field != V4L2_FIELD_NONE) {
+		dev_err(&client->dev, "Field type invalid.\n");
+		return -ENODEV;
+	}
+
+	switch (mf->code) {
+	case V4L2_MBUS_FMT_YUYV8_2X8:
+	case V4L2_MBUS_FMT_YUYV8_1_5X8:
+	case V4L2_MBUS_FMT_JZYUYV8_1_5X8:
+		mf->colorspace = V4L2_COLORSPACE_JPEG;
+		break;
+
+	default:
+		mf->code = V4L2_MBUS_FMT_YUYV8_2X8;
+		break;
+	}
+
+	return 0;
+}
+
+
+static int hi253_enum_fmt(struct v4l2_subdev *sd, unsigned int index,
+			   enum v4l2_mbus_pixelcode *code)
+{
+	if (index >= ARRAY_SIZE(hi253_codes))
+		return -EINVAL;
+
+	*code = hi253_codes[index];
+	return 0;
+}
+
+static int hi253_g_crop(struct v4l2_subdev *sd, struct v4l2_crop *a)
+{
+	return 0;
+}
+
+static int hi253_cropcap(struct v4l2_subdev *sd, struct v4l2_cropcap *a)
+{
+	return 0;
+}
+
+
+/*
+ * Frame intervals.  Since frame rates are controlled with the clock
+ * divider, we can only do 30/n for integer n values.  So no continuous
+ * or stepwise options.  Here we just pick a handful of logical values.
+ */
+
+static int hi253_frame_rates[] = { 30, 15, 10, 5, 1 };
+
+static int hi253_enum_frameintervals(struct v4l2_subdev *sd,
+		struct v4l2_frmivalenum *interval)
+{
+	if (interval->index >= ARRAY_SIZE(hi253_frame_rates))
+		return -EINVAL;
+	interval->type = V4L2_FRMIVAL_TYPE_DISCRETE;
+	interval->discrete.numerator = 1;
+	interval->discrete.denominator = hi253_frame_rates[interval->index];
+	return 0;
+}
+
+
+/*
+ * Frame size enumeration
+ */
+static int hi253_enum_framesizes(struct v4l2_subdev *sd,
+		struct v4l2_frmsizeenum *fsize)
+{
+	int i;
+	int num_valid = -1;
+	__u32 index = fsize->index;
+
+	for (i = 0; i < N_WIN_SIZES; i++) {
+		struct hi253_win_size *win = &hi253_supported_win_sizes[index];
+		if (index == ++num_valid) {
+			fsize->type = V4L2_FRMSIZE_TYPE_DISCRETE;
+			fsize->discrete.width = win->width;
+			fsize->discrete.height = win->height;
+			return 0;
+		}
+	}
+
+	return -EINVAL;
+}
+
+static int hi253_video_probe(struct soc_camera_device *icd,
+			      struct i2c_client *client)
+{
+	unsigned char retval = 0;
+	/*
+	 * we must have a parent by now. And it cannot be a wrong one.
+	 * So this entire test is completely redundant.
+	 */
+	if (!icd->dev.parent ||
+	    to_soc_camera_host(icd->dev.parent)->nr != icd->iface) {
+		dev_err(&client->dev, "Parent missing or invalid!\n");
+		return -ENODEV;
+	}
+
+	/*
+	 * check and show product ID and manufacturer ID
+	 */
+	retval = i2c_smbus_write_byte_data(client, 0x03, 0x00);
+	if(retval) {
+		dev_err(&client->dev, "i2c write failed!\n");
+		return -1;
+	}
+
+	retval = i2c_smbus_read_byte_data(client, REG_CHIP_ID);
+	if(retval == PID_HI253) {
+		dev_info(&client->dev, "read sensor %s id ok\n",
+				client->name);
+		return 0;
+	}
+
+	dev_err(&client->dev, "read sensor %s id: 0x%x, failed!\n",
+			client->name, retval);
+	return -1;
+}
+
+static struct soc_camera_ops hi253_ops = {
+	.set_bus_param		= hi253_set_bus_param,
+	.query_bus_param	= hi253_query_bus_param,
+	.controls		= hi253_controls,
+	.num_controls		= ARRAY_SIZE(hi253_controls),
+};
+
+static struct v4l2_subdev_core_ops hi253_subdev_core_ops = {
+	.init 		= hi253_init,
+	.g_ctrl		= hi253_g_ctrl,
+	.s_ctrl		= hi253_s_ctrl,
+	.g_chip_ident	= hi253_g_chip_ident,
+	.querymenu  = hi253_querymenu,
+#ifdef CONFIG_VIDEO_ADV_DEBUG
+	.g_register	= hi253_g_register,
+	.s_register	= hi253_s_register,
+#endif
+};
+
+static struct v4l2_subdev_video_ops hi253_subdev_video_ops = {
+	.s_stream	= hi253_s_stream,
+	.g_mbus_fmt	= hi253_g_fmt,
+	.s_mbus_fmt	= hi253_s_fmt,
+	.try_mbus_fmt	= hi253_try_fmt,
+	.cropcap	= hi253_cropcap,
+	.g_crop		= hi253_g_crop,
+	.enum_mbus_fmt	= hi253_enum_fmt,
+	.enum_framesizes = hi253_enum_framesizes,
+	.enum_frameintervals = hi253_enum_frameintervals,
+};
+
+static struct v4l2_subdev_ops hi253_subdev_ops = {
+	.core	= &hi253_subdev_core_ops,
+	.video	= &hi253_subdev_video_ops,
+};
+
+/*
+ * i2c_driver functions
+ */
+
+static int hi253_probe(struct i2c_client *client,
+			const struct i2c_device_id *did)
+{
+	struct hi253_priv *priv;
+	struct soc_camera_device *icd = client->dev.platform_data;
+	struct i2c_adapter *adapter = to_i2c_adapter(client->dev.parent);
+	struct soc_camera_link *icl;
+	int ret = 0;
+
+	if(!strcmp(client->name, "hi253-back")) {
+		client->addr -= 1;
+	}
+
+	if (!icd) {
+		dev_err(&adapter->dev, "HI253: missing soc-camera data!\n");
+		return -EINVAL;
+	}
+
+	icl = to_soc_camera_link(icd);
+	if (!icl) {
+		dev_err(&adapter->dev,
+			"HI253: Missing platform_data for driver\n");
+		return -EINVAL;
+	}
+
+	if(!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE
+			| I2C_FUNC_SMBUS_BYTE_DATA)) {
+		dev_err(&client->dev, "client not i2c capable\n");
+		return -ENODEV;
+	}
+
+	priv = kzalloc(sizeof(struct hi253_priv), GFP_KERNEL);
+	if (!priv) {
+		dev_err(&adapter->dev,
+			"Failed to allocate memory for private data!\n");
+		return -ENOMEM;
+	}
+
+	priv->info = icl->priv;
+
+	v4l2_i2c_subdev_init(&priv->subdev, client, &hi253_subdev_ops);
+
+	icd->ops = &hi253_ops;
+
+	ret = hi253_video_probe(icd, client);
+	if (ret) {
+		icd->ops = NULL;
+		kfree(priv);
+	}
+	return ret;
+}
+
+static int hi253_remove(struct i2c_client *client)
+{
+	struct hi253_priv       *priv = to_hi253(client);
+	struct soc_camera_device *icd = client->dev.platform_data;
+
+	icd->ops = NULL;
+	kfree(priv);
+	return 0;
+}
+
+static const struct i2c_device_id hi253_id[] = {
+	{ "hi253-front",  0 },
+	{ "hi253-back",  0 },
+	{ }
+};
+
+
+MODULE_DEVICE_TABLE(i2c, hi253_id);
+
+static struct i2c_driver hi253_i2c_driver = {
+	.driver = {
+		.name = "hi253",
+	},
+	.probe    = hi253_probe,
+	.remove   = hi253_remove,
+	.id_table = hi253_id,
+};
+
+/*
+ * Module functions
+ */
+static int __init hi253_module_init(void)
+{
+	return i2c_add_driver(&hi253_i2c_driver);
+}
+
+static void __exit hi253_module_exit(void)
+{
+	i2c_del_driver(&hi253_i2c_driver);
+}
+
+module_init(hi253_module_init);
+module_exit(hi253_module_exit);
+
+MODULE_DESCRIPTION("camera sensor hi253 driver");
+MODULE_AUTHOR("YeFei <feiye@ingenic.cn>");
+MODULE_LICENSE("GPL");

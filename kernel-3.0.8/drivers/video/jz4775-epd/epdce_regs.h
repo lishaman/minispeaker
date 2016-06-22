@@ -1,0 +1,349 @@
+/*
+ *
+ * JZ4775 EPDCE register definition.
+ *
+ * Copyright (C) 2013 Ingenic Semiconductor Co., Ltd.
+ */
+
+#ifndef __CHIP_EPDCE_H__
+#define __CHIP_EPDCE_H__
+
+#define REG32(addr)	*((volatile unsigned int *)(addr))
+
+#define EPDCE_BASE	0xb30d0000
+
+/*************************************************************************
+ * EPDCE:EPD Color Engine
+ *************************************************************************/
+
+/* EPDCE Register Address*/
+#define EPDCE_CTRL	(EPDCE_BASE + 0x0)
+#define EPDCE_IFS	(EPDCE_BASE + 0x4)
+#define EPDCE_IFOF	(EPDCE_BASE + 0x8)
+#define EPDCE_IFA	(EPDCE_BASE + 0xc)
+#define EPDCE_OFS	(EPDCE_BASE + 0x10)
+//#define EPDCE_OFOF	(EPDCE_BASE + 0x14)
+#define EPDCE_OFC	(EPDCE_BASE + 0x18)
+#define EPDCE_OFA0	(EPDCE_BASE + 0x1c)
+#define EPDCE_IS	(EPDCE_BASE + 0x20)
+#define EPDCE_IM	(EPDCE_BASE + 0x24)
+#define EPDCE_IC	(EPDCE_BASE + 0x28)
+#define EPDCE_IIFID	(EPDCE_BASE + 0x2c)
+#define EPDCE_IOFID	(EPDCE_BASE + 0x30)
+#define EPDCE_DMAC	(EPDCE_BASE + 0x34)
+#define EPDCE_DMAS	(EPDCE_BASE + 0x38)
+#define EPDCE_IDMADES	(EPDCE_BASE + 0x3c)
+#define EPDCE_ODMADES	(EPDCE_BASE + 0x40)
+#define EPDCE_IDMACMD	(EPDCE_BASE + 0x44)
+#define EPDCE_ODMACMD0	(EPDCE_BASE + 0x48)
+#define EPDCE_CFC	(EPDCE_BASE + 0x5c)
+#define EPDCE_CFRCE0	(EPDCE_BASE + 0x60)
+#define EPDCE_CFRCE1	(EPDCE_BASE + 0x64)
+#define EPDCE_CFRCE2	(EPDCE_BASE + 0x68)
+#define EPDCE_VEEC	(EPDCE_BASE + 0x6c)
+#define EPDCE_HUEC	(EPDCE_BASE + 0x70)
+#define EPDCE_HUECE	(EPDCE_BASE + 0x74)
+#define EPDCE_CSC	(EPDCE_BASE + 0x78)
+#define EPDCE_CSCE	(EPDCE_BASE + 0x7c)
+#define EPDCE_DTC	(EPDCE_BASE + 0x80)
+#define EPDCE_IFID	(EPDCE_BASE + 0x84)
+#define EPDCE_OFID	(EPDCE_BASE + 0x88)
+#define EPDCE_IFWS	(EPDCE_BASE + 0x94)
+//#define EPDCE_OFWS	(EPDCE_BASE + 0x98)
+#define EPDCE_XRID	(EPDCE_BASE + 0x9c)
+#define EPDCE_XWID	(EPDCE_BASE + 0xa0)
+#define EPDCE_CSCC	(EPDCE_BASE + 0xa4)
+#define EPDCE_CRC	(EPDCE_BASE + 0xa8)
+#define EPDCE_CFGCE0	(EPDCE_BASE + 0xac)
+#define EPDCE_CFGCE1	(EPDCE_BASE + 0xb0)
+#define EPDCE_CFGCE2	(EPDCE_BASE + 0xb4)
+#define EPDCE_CFBCE0	(EPDCE_BASE + 0xb8)
+#define EPDCE_CFBCE1	(EPDCE_BASE + 0xbc)
+#define EPDCE_CFBCE2	(EPDCE_BASE + 0xc0)
+#define EPDCE_OFA1	(EPDCE_BASE + 0xc4)
+#define EPDCE_ODMACMD1	(EPDCE_BASE + 0xc8)
+#define EPDCE_VEE_LUT(n)	(EPDCE_BASE + 0x1000 + (0x1 * n))
+#define EPDCE_CR_LUT(n)		(EPDCE_BASE + 0x2000 + (0x1 * n))
+
+/* EPDCE Register*/
+#define REG_EPDCE_CTRL		REG32(EPDCE_CTRL)
+#define REG_EPDCE_IFS		REG32(EPDCE_IFS)
+#define REG_EPDCE_IFOF		REG32(EPDCE_IFOF)
+#define REG_EPDCE_IFA		REG32(EPDCE_IFA)
+#define REG_EPDCE_OFS		REG32(EPDCE_OFS)
+//#define REG_EPDCE_OFOF		REG32(EPDCE_OFOF)
+#define REG_EPDCE_OFC		REG32(EPDCE_OFC)
+#define REG_EPDCE_OFA0		REG32(EPDCE_OFA0)
+#define REG_EPDCE_IS		REG32(EPDCE_IS)
+#define REG_EPDCE_IM		REG32(EPDCE_IM)
+#define REG_EPDCE_IC		REG32(EPDCE_IC)
+#define REG_EPDCE_IIFID		REG32(EPDCE_IIFID)
+#define REG_EPDCE_IOFID		REG32(EPDCE_IOFID)
+#define REG_EPDCE_DMAC		REG32(EPDCE_DMAC)
+#define REG_EPDCE_DMAS		REG32(EPDCE_DMAS)
+#define REG_EPDCE_IDMADES	REG32(EPDCE_IDMADES)
+#define REG_EPDCE_ODMADES	REG32(EPDCE_ODMADES)
+#define REG_EPDCE_IDMACMD	REG32(EPDCE_IDMACMD)
+#define REG_EPDCE_ODMACMD0	REG32(EPDCE_ODMACMD0)
+#define REG_EPDCE_CFC		REG32(EPDCE_CFC)
+#define REG_EPDCE_CFRCE0	REG32(EPDCE_CFRCE0)
+#define REG_EPDCE_CFRCE1	REG32(EPDCE_CFRCE1)
+#define REG_EPDCE_CFRCE2	REG32(EPDCE_CFRCE2)
+#define REG_EPDCE_VEEC		REG32(EPDCE_VEEC)
+#define REG_EPDCE_HUEC		REG32(EPDCE_HUEC)
+#define REG_EPDCE_HUECE		REG32(EPDCE_HUECE)
+#define REG_EPDCE_CSC		REG32(EPDCE_CSC)
+#define REG_EPDCE_CSCE		REG32(EPDCE_CSCE)
+#define REG_EPDCE_DTC		REG32(EPDCE_DTC)
+#define REG_EPDCE_IFID		REG32(EPDCE_IFID)
+#define REG_EPDCE_OFID		REG32(EPDCE_OFID)
+#define REG_EPDCE_IFWS		REG32(EPDCE_IFWS)
+//#define REG_EPDCE_OFWS		REG32(EPDCE_OFWS)
+#define REG_EPDCE_XRID		REG32(EPDCE_XRID)
+#define REG_EPDCE_XWID		REG32(EPDCE_XWID)
+#define REG_EPDCE_CSCC		REG32(EPDCE_CSCC)
+#define REG_EPDCE_CRC		REG32(EPDCE_CRC)
+#define REG_EPDCE_CFGCE0	REG32(EPDCE_CFGCE0)
+#define REG_EPDCE_CFGCE1	REG32(EPDCE_CFGCE1)
+#define REG_EPDCE_CFGCE2	REG32(EPDCE_CFGCE2)
+#define REG_EPDCE_CFBCE0	REG32(EPDCE_CFBCE0)
+#define REG_EPDCE_CFBCE1	REG32(EPDCE_CFBCE1)
+#define REG_EPDCE_CFBCE2	REG32(EPDCE_CFBCE2)
+#define REG_EPDCE_OFA1		REG32(EPDCE_OFA1)
+#define REG_EPDCE_ODMACMD1	REG32(EPDCE_ODMACMD1)
+#define REG_EPDCE_VEE_LUT(n)	REG32(EPDCE_VEE_LUT(n))
+#define REG_EPDCE_CR_LUT(n)	REG32(EPDCE_CR_LUT(n))
+
+/* EPDCE Register Bits Description*/
+#define EPDCE_CTRL_EPDCE_RST	(1 << 1)
+#define EPDCE_CTRL_EPDCE_EN	(1 << 0)
+
+#define EPDCE_IFS_IN_FRM_VS	16
+#define EPDCE_IFS_IN_FRM_HS	0
+
+#define EPDCE_IFOF_IN_FRM_VOF	16
+#define EPDCE_IFOF_IN_FRM_HOF	0
+
+#define EPDCE_IFWS_WIN_V_EN_ALL	(0 << 31)
+#define EPDCE_IFWS_WIN_V_EN_PAR	(1 << 31)
+#define EPDCE_IFWS_INFRM_WIN_VS 16
+#define	EPDCE_IFWS_WIN_H_EN_ALL	(0 << 15)
+#define	EPDCE_IFWS_WIN_H_EN_PAR	(1 << 15)
+#define EPDCE_IFWS_INFRM_WIN_HS 0
+
+//#define EPDCE_OFS_OUT_FRM_VS	16
+//#define EPDCE_OFS_OUT_FRM_HS	0
+#define	EPDCE_OFS_O_WIN_HE	31
+#define EPDCE_OFS_O_WIN_HS	16
+#define EPDCE_OFS_O_FRM_HS	0
+
+//#define EPDCE_OFOF_OUT_FRM_VOF	16
+//#define EPDCE_OFOF_OUT_FRM_HOF	0
+
+/*Output Frame Control Register*/
+#define EPDCE_OFC_SEL7		30
+#define EPDCE_OFC_SEL6		28
+#define EPDCE_OFC_SEL5		26
+#define EPDCE_OFC_SEL4		24
+#define EPDCE_OFC_SEL3		22
+#define EPDCE_OFC_SEL2		20
+#define EPDCE_OFC_SEL1		18
+#define EPDCE_OFC_SEL0		16
+
+#define EPDCE_OFC_SEL7_R	(0x0 << EPDCE_OFC_SEL7)
+#define EPDCE_OFC_SEL7_G	(0x1 << EPDCE_OFC_SEL7)
+#define EPDCE_OFC_SEL7_B	(0x2 << EPDCE_OFC_SEL7)
+#define EPDCE_OFC_SEL7_W	(0x3 << EPDCE_OFC_SEL7)
+
+#define EPDCE_OFC_SEL6_R	(0x0 << EPDCE_OFC_SEL6)
+#define EPDCE_OFC_SEL6_G	(0x1 << EPDCE_OFC_SEL6)
+#define EPDCE_OFC_SEL6_B	(0x2 << EPDCE_OFC_SEL6)
+#define EPDCE_OFC_SEL6_W	(0x3 << EPDCE_OFC_SEL6)
+
+#define EPDCE_OFC_SEL5_R	(0x0 << EPDCE_OFC_SEL5)
+#define EPDCE_OFC_SEL5_G	(0x1 << EPDCE_OFC_SEL5)
+#define EPDCE_OFC_SEL5_B	(0x2 << EPDCE_OFC_SEL5)
+#define EPDCE_OFC_SEL5_W	(0x3 << EPDCE_OFC_SEL5)
+
+#define EPDCE_OFC_SEL4_R	(0x0 << EPDCE_OFC_SEL4)
+#define EPDCE_OFC_SEL4_G	(0x1 << EPDCE_OFC_SEL4)
+#define EPDCE_OFC_SEL4_B	(0x2 << EPDCE_OFC_SEL4)
+#define EPDCE_OFC_SEL4_W	(0x3 << EPDCE_OFC_SEL4)
+
+#define EPDCE_OFC_SEL3_R	(0x0 << EPDCE_OFC_SEL3)
+#define EPDCE_OFC_SEL3_G	(0x1 << EPDCE_OFC_SEL3)
+#define EPDCE_OFC_SEL3_B	(0x2 << EPDCE_OFC_SEL3)
+#define EPDCE_OFC_SEL3_W	(0x3 << EPDCE_OFC_SEL3)
+
+#define EPDCE_OFC_SEL2_R	(0x0 << EPDCE_OFC_SEL2)
+#define EPDCE_OFC_SEL2_G	(0x1 << EPDCE_OFC_SEL2)
+#define EPDCE_OFC_SEL2_B	(0x2 << EPDCE_OFC_SEL2)
+#define EPDCE_OFC_SEL2_W	(0x3 << EPDCE_OFC_SEL2)
+
+#define EPDCE_OFC_SEL1_R	(0x0 << EPDCE_OFC_SEL1)
+#define EPDCE_OFC_SEL1_G	(0x1 << EPDCE_OFC_SEL1)
+#define EPDCE_OFC_SEL1_B	(0x2 << EPDCE_OFC_SEL1)
+#define EPDCE_OFC_SEL1_W	(0x3 << EPDCE_OFC_SEL1)
+
+#define EPDCE_OFC_SEL0_R	(0x0 << EPDCE_OFC_SEL0)
+#define EPDCE_OFC_SEL0_G	(0x1 << EPDCE_OFC_SEL0)
+#define EPDCE_OFC_SEL0_B	(0x2 << EPDCE_OFC_SEL0)
+#define EPDCE_OFC_SEL0_W	(0x3 << EPDCE_OFC_SEL0)
+
+#define EPDCE_OFC_SEL_RGBW	(0 << 0)
+#define EPDCE_OFC_SEL_Y		(1 << 0)
+#define EPDCE_OFC_SEL_RGB	(2 << 0)
+
+#define EPDCE_OFWS_WIN_V_EN_ALL	(0 << 31)
+#define EPDCE_OFWS_WIN_V_EN_PAR	(1 << 31)
+#define EPDCE_OFWS_OUTFRM_WIN_VS 16
+#define	EPDCE_OFWS_WIN_H_EN_ALL	(0 << 15)
+#define	EPDCE_OFWS_WIN_H_EN_PAR	(1 << 15)
+#define EPDCE_OFWS_OUTFRM_WIN_HS 0
+
+#define EPDCE_IS_OSTOP		(1 << 5)
+#define EPDCE_IS_OEOF		(1 << 4)
+#define EPDCE_IS_OSOF		(1 << 3)
+#define EPDCE_IS_ISTOP		(1 << 2)
+#define EPDCE_IS_IEOF		(1 << 1)
+#define EPDCE_IS_ISOF		(1 << 0)
+
+#define EPDCE_IM_OSTOP_ENA	(0 << 5)
+#define EPDCE_IM_OSTOP_MSK	(1 << 5)
+#define EPDCE_IM_OEOF_ENA	(0 << 4)
+#define EPDCE_IM_OEOF_MSK	(1 << 4)
+#define EPDCE_IM_OSOF_ENA	(0 << 3)
+#define EPDCE_IM_OSOF_MSK	(1 << 3)
+#define EPDCE_IM_ISTOP_ENA	(0 << 2)
+#define EPDCE_IM_ISTOP_MSK	(1 << 2)
+#define EPDCE_IM_IEOF_ENA	(0 << 1)
+#define EPDCE_IM_IEOF_MSK	(1 << 1)
+#define EPDCE_IM_ISOF_ENA	(0 << 0)
+#define EPDCE_IM_ISOF_MSK	(1 << 0)
+
+#define EPDCE_IC_OSTOP		(1 << 5)
+#define EPDCE_IC_OEOF		(1 << 4)
+#define EPDCE_IC_OSOF		(1 << 3)
+#define EPDCE_IC_ISTOP		(1 << 2)
+#define EPDCE_IC_IEOF		(1 << 1)
+#define EPDCE_IC_ISOF		(1 << 0)
+
+#define EPDCE_DMAC_CDMA_DIS	(0 << 0)
+#define EPDCE_DMAC_CDMA_ENA	(1 << 0)
+
+#define EPDCE_DMAS_OSTOP	(1 << 5)
+#define EPDCE_DMAS_OEOF		(1 << 4)
+#define EPDCE_DMAS_OSOF		(1 << 3)
+#define EPDCE_DMAS_DMASTOP	(1 << 2)
+#define EPDCE_DMAS_IEOF		(1 << 1)
+#define EPDCE_DMAS_ISOF		(1 << 0)
+
+#define EPDCE_IDMACMD_SOF_ENA	(1 << 31)
+#define EPDCE_IDMACMD_EOF_ENA	(1 << 30)
+#define EPDCE_IDMACMD_STOP_ENA	(1 << 29)
+#define EPDCE_IDMACMD_LEN	0
+
+#define EPDCE_ODMACMD0_SOF_ENA	(1 << 31)
+#define EPDCE_ODMACMD0_EOF_ENA	(1 << 30)
+#define EPDCE_ODMACMD0_STOP_ENA	(1 << 29)
+#define EPDCE_ODMACMD0_LEN	0
+
+#define EPDCE_ODMACMD1_LEN	0
+
+#define	EPDCE_CSCC_Y2R_601W	(0 << 6)
+#define EPDCE_CSCC_Y2R_601N	(1 << 6)
+#define EPDCE_CSCC_Y2R_709W	(2 << 6)
+#define	EPDCE_CSCC_Y2R_709N	(3 << 6)
+#define EPDCE_CSCC_Y2R_DIS	(0 << 4)
+#define EPDCE_CSCC_Y2R_ENA	(1 << 4)
+#define	EPDCE_CSCC_R2Y_601W	(0 << 2)
+#define EPDCE_CSCC_R2Y_601N	(1 << 2)
+#define EPDCE_CSCC_R2Y_709W	(2 << 2)
+#define	EPDCE_CSCC_R2Y_709N	(3 << 2)
+#define EPDCE_CSCC_R2Y_DIS	(0 << 0)
+#define EPDCE_CSCC_R2Y_ENA	(1 << 0)
+
+#define EPDCE_CFC_YCF_DIS	(0 << 1)
+#define EPDCE_CFC_YCF_ENA	(1 << 1)
+#define EPDCE_CFC_RGBCF_DIS	(0 << 0)
+#define EPDCE_CFC_RGBCF_ENA	(1 << 1)
+
+#define EPDCE_CFRCE0_K3		24
+#define	EPDCE_CFRCE0_K2		16
+#define EPDCE_CFRCE0_K1		8
+#define EPDCE_CFRCE0_K0		0
+
+#define	EPDCE_CFRCE1_K7		24
+#define	EPDCE_CFRCE1_K6		16
+#define EPDCE_CFRCE1_K5		8
+#define	EPDCE_CFRCE1_K4		0
+
+#define	EPDCE_CFRCE2_SCALE	24
+#define	EPDCE_CFRCE2_OFFSET	16
+#define	EPDCE_CFRCE2_K8		0
+
+#define EPDCE_CFGCE0_K3		24
+#define	EPDCE_CFGCE0_K2		16
+#define EPDCE_CFGCE0_K1		8
+#define EPDCE_CFGCE0_K0		0
+
+#define	EPDCE_CFGCE1_K7		24
+#define	EPDCE_CFGCE1_K6		16
+#define EPDCE_CFGCE1_K5		8
+#define	EPDCE_CFGCE1_K4		0
+
+#define	EPDCE_CFGCE2_SCALE	24
+#define	EPDCE_CFGCE2_OFFSET	16
+#define	EPDCE_CFGCE2_K8		0
+
+#define EPDCE_CFBCE0_K3		24
+#define	EPDCE_CFBCE0_K2		16
+#define EPDCE_CFBCE0_K1		8
+#define EPDCE_CFBCE0_K0		0
+
+#define	EPDCE_CFBCE1_K7		24
+#define	EPDCE_CFBCE1_K6		16
+#define EPDCE_CFBCE1_K5		8
+#define	EPDCE_CFBCE1_K4		0
+
+#define	EPDCE_CFBCE2_SCALE	24
+#define	EPDCE_CFBCE2_OFFSET	16
+#define	EPDCE_CFBCE2_K8		0
+
+#define EPDCE_VEEC_DIS		(0 << 0)
+#define EPDCE_VEEC_ENA		(1 << 0)
+
+#define EPDCE_HUEC_DIS		(0 << 0)
+#define EPDCE_HUEC_ENA		(1 << 0)
+
+#define EPDCE_HUECE_HUE_COS	16
+#define EPDCE_HUECE_HUE_SIN	0
+
+#define EPDCE_CSC_DIS		(0 << 0)
+#define EPDCE_CSC_ENA		(1 << 0)
+
+#define EPDCE_CSCE_CS_K		0
+
+#define EPDCE_DTC_DTH_SEL_2BITS	(0 << 4)
+#define EPDCE_DTC_DTH_SEL_3BITS	(1 << 4)
+#define EPDCE_DTC_DTH_SEL_4BITS	(2 << 4)
+#define EPDCE_DTC_DTH_SEL_RSV	(3 << 4)
+#define EPDCE_DTC_DTHB_DIS	(0 << 2)
+#define EPDCE_DTC_DTHB_ENA	(1 << 2)
+#define EPDCE_DTC_DTHG_DIS	(0 << 1)
+#define EPDCE_DTC_DTHG_ENA	(1 << 1)
+#define EPDCE_DTC_DTHR_DIS	(0 << 0)
+#define EPDCE_DTC_DTHR_ENA	(1 << 0)
+#define EPDCE_DTC_DTHY_DIS	(0 << 0)
+#define EPDCE_DTC_DTHY_ENA	(1 << 0)
+
+#define	EPDCE_CRC_CFA_MODE	(0 << 1)
+#define	EPDCE_CRC_PA_MODE	(1 << 1)
+#define	EPDCE_CRC_DIS		(0 << 0)
+#define	EPDCE_CRC_ENA		(1 << 0)
+
+#define	EPDCE_XIDS_ID_R		0
+#define	EPDCE_XIDP_ID_W		0
+
+#endif /* __CHIP_EPDCE_H__ */
+

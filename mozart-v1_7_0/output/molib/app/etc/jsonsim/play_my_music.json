@@ -1,0 +1,6 @@
+{
+    "command_str": "{\"commandlist\":[{\"commandcontent\":{\"action\":\"playfavoritemusic\",\"name\":\"\",\"data\":[],\"web\":\"\"},\"commandtype\":\"devicecontrol\",\"source_type\":\"devicecontrol_type_1\"}],\"debug_info\":\"\",\"handle_text\":\"我的音乐\",\"more_info\":0}\n",
+    "item": [
+      "我的音乐"
+    ]
+}

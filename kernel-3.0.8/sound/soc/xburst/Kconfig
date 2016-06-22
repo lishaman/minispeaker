@@ -1,0 +1,27 @@
+config SND_JZ47XX_SOC
+	tristate "SoC Audio for Ingenic xburst chip"
+	depends on JZRISC && SND_SOC
+	help
+	  Say Y or M if you want to add support for codecs attached to
+	  the Jz47XX AC97, I2S controller. 
+
+config SND_JZ47XX_SOC_I2S
+        tristate
+
+config SND_JZ4780_SOC_NC750_ICDC
+	tristate "SoC I2S Audio support for JZ4780 Nc750 reference board with internal codec"
+	depends on SND_JZ47XX_SOC
+	depends on SOC_4780
+	select SND_JZ47XX_SOC_I2S
+	select SND_SOC_JZ4780_ICDC
+	help
+	  Say Y if you want to add audio support for JZ4780 Grus reference board with internal codec.
+
+config SND_JZ4775_SOC_MENSA_ICDC
+	tristate "SoC I2S Audio support for JZ4775 mensa reference board with internal codec"
+	depends on SND_JZ47XX_SOC
+	depends on SOC_4775
+	select SND_JZ47XX_SOC_I2S
+	select SND_SOC_JZ4775_ICDC
+	help
+	  Say Y if you want to add audio support for JZ4775 Mensa reference board with internal codec.

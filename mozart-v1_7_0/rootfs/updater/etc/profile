@@ -1,0 +1,20 @@
+#! /bin/sh
+
+PS1='\u@\h:\w\$ '
+
+# alias some cmd
+alias ll='ls -alF'
+alias la='ls -A'
+alias lh='ls -lh'
+alias llh='ls -lh'
+alias l='ls -CF'
+alias vim='vi'
+alias ps='ps wl'
+
+# PATH and LD_LIBRARY_PATH settings.
+source /etc/mozart.path
+
+# character encoding setting
+#export LANG=en_US.UTF-8
+#export LC_ALL=en_US.UTF-8
+

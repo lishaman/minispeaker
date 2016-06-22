@@ -1,0 +1,199 @@
+===============================================================================
+Driver Overview
+===============================================================================
+AX88796C 3-in-1 SRAM-like 8/16-bit Fast Ethernet Linux 2.6.x Driver
+
+The AX88796C Ethernet controller is a high performance and highly integrated
+local CPU bus Ethernet controller with embedded 10/100Mbps PHY/Transceiver
+and supports both 8-bit and 16-bit local CPU interfaces for any 
+embedded systems. 
+
+If you look for more details,
+    please visit ASIX's web site (http://www.asix.com.tw).
+
+===============================================================================
+Revision History
+===============================================================================
+Version 1.4.0	03/28/2011
+	* Fixed for LED setting on 8-bit mode
+	* Corrected comparison of jiffies.
+
+Version	1.3.0	08/26/2010
+        * Fixups for compilation issues in kernel version 2.6.35.
+	* Refined PIO TX functions.
+	* Corrected the definition of WFCR register.
+
+Version	1.2.0	05/11/2010
+        * Fixup watchdog routine.
+
+Version	1.1.0	04/07/2010
+        * Refined the whole source code.
+        * Added more debug messages.
+
+Version	1.0.0	03/02/2010
+        * Initial release.
+
+===============================================================================
+File Description
+===============================================================================
+README               This file
+ax88796c_main.c      AX88796C Linux driver main functions
+ax88796c.h           AX88796C Linux driver header file
+ax88796c_plat_dma.c  Platform dependent functions
+ax88796c_plat_dma.h  Platform dependent header file
+ax88796c_ioctl.c     AX88796C Linux driver helper functions
+ax88796c_ioctl.h     AX88796C Linux driver header file
+command.h            AX88796C Linux driver header file
+ioctl.c              User program for IEEE test
+ioctl.h              User program header file
+Makefile             AX88796C driver make file
+ax88796c.log         Log file of driver debug messages
+COPYING	GNU GENERAL PUBLIC LICENSE
+
+================================================================================
+Platform Driver Registration
+================================================================================
+Since the AX88796C Linux driver is written in platform device model, developer
+should declare the resource for it. For more information, please refer to the
+"Kernel Source/Documentation/driver-model/platform.txt". Following shows
+example of AX88796C platform driver declaration:
+
+1. Declare resource for AX88796C:
+static struct resource ax88796c_resource[] = {
+    [0] = {
+        .start = S3C2410_CS1,           /* Start of AX88796C base address */
+        .end   = S3C2410_CS1 + 0xFFFFF, /* End of AX88796C base address */
+        .flags = IORESOURCE_MEM,
+    },
+    [1] = {
+        .start = IRQ_EINT11,            /* Interrupt line number */
+        .end   = IRQ_EINT11,
+        .flags = IORESOURCE_IRQ,
+    }
+};
+
+2. Declare the name for binding:
+struct platform_device net_device_ax88796c = {
+    .name  = "ax88796c",
+    .id  = -1,
+    .num_resources = ARRAY_SIZE(ax88796c_resource),
+    .resource = ax88796c_resource,
+};
+
+3. Sample code to insert driver resource into platform devices:
+static struct platform_device *smdk2440_devices[] __initdata = {
+        &s3c_device_spi0,
+        &s3c_device_ohci,
+        &s3c_device_lcd,
+        &s3c_device_wdt,
+        &s3c_device_i2c0,
+        &s3c_device_iis,
+               .
+               .
+               .
+        &net_device_ax88796c,           /* Insert driver resource here */
+};
+
+===============================================================================
+COMPILING DRIVER
+===============================================================================
+Prepare: 
+
+	AX88796C Linux Driver Source.
+	Linux Kernel source code.
+	Cross-Compiler.
+
+Getting Start:
+
+	1.Extract the AX88796C source file by executing the following command:
+		[root@localhost]# tar jxvf driver_package.tar.bz2
+
+	2.Edit the makefile to specify the path of target platform Linux Kernel
+          source.
+			KDIR = /work/linux-2.6.x
+
+	3.Edit the makefile to specify the path of cross toolchain.
+			CC = /work/xxx-gcc
+
+	4.Executing 'make' command to compile AX88796C Driver.
+
+	5.If the compilation is well, the ax88796c.ko and ioctl will be created
+          under the current directory.
+
+===============================================================================
+COMPLATION FLAGS
+===============================================================================
+[AX88796C_8BIT_MODE]
+setting:
+	TRUE  -> AX88796C is running on 8-bit bus
+	FALSE -> AX88796C is running on 16-bit bus
+default:
+	FALSE
+
+[TX_DMA_MODE]
+setting:
+	TRUE  -> TX DMA mode
+	FALSE -> TX PIO mode
+default:
+	TRUE
+
+[RX_DMA_MODE]
+setting:
+	TRUE  -> RX DMA mode
+	FALSE -> RX PIO mode
+default:
+	TRUE
+
+[AX88796B_PIN_COMPATIBLE]
+setting:
+	TRUE  -> Register mapping is shifted by one bit
+	FALSE -> No changes for register mapping
+default:
+	FALSE
+
+===============================================================================
+DRIVER PARAMETERS
+===============================================================================
+[mem]
+setting:
+	The base address of AX88796C
+default:
+	0 (retrieved from platform information)
+
+[irq]
+setting:
+	The interrupt line number of AX88796C
+default:
+	0 (retrieved from platform information)
+
+[ps_level]
+setting:
+	0 -> Disable power saving
+	1 -> Enable power saving level 1
+	2 -> Enable power saving level 2
+default:
+	0
+
+[msg_enable]
+setting:
+	NETIF_MSG_DRV		(0x0001)    (Not used)
+	NETIF_MSG_PROBE		(0x0002)    (Probe messages)
+	NETIF_MSG_LINK		(0x0004)    (Link change messages)
+	NETIF_MSG_TIMER		(0x0008)    (Watchdog messages)
+	NETIF_MSG_IFDOWN	(0x0010)    (Not used)
+	NETIF_MSG_IFUP		(0x0020)    (Initialization messages)
+	NETIF_MSG_RX_ERR	(0x0040)    (RX error messages)
+	NETIF_MSG_TX_ERR	(0x0080)    (TX error messages)
+	NETIF_MSG_TX_QUEUED	(0x0100)    (TX queue messages)
+	NETIF_MSG_INTR		(0x0200)    (Interrupt messages)
+	NETIF_MSG_TX_DONE	(0x0400)    (Not used)
+	NETIF_MSG_RX_STATUS	(0x0800)    (RX indication messages)
+	NETIF_MSG_PKTDATA	(0x1000)    (TX/RX packet data)
+	NETIF_MSG_HW		(0x2000)    (MAC/PHY register dump messages)
+	NETIF_MSG_WOL		(0x4000)    (Wake-On-Lan messages)
+default:
+	NETIF_MSG_DRV | NETIF_MSG_PROBE | \
+	NETIF_MSG_LINK | NETIF_MSG_IFUP | \
+	NETIF_MSG_RX_ERR | NETIF_MSG_TX_ERR | \
+	NETIF_MSG_TX_QUEUED | NETIF_MSG_WOL
+

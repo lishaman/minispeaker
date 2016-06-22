@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# turn on dbus-daemon service
+dbus-uuidgen > /var/lib/dbus/machine-id
+dbus-daemon --config-file=/etc/dbus-1/system.conf
+
+# bluetooth power on
+echo 1 > /sys/class/rfkill/rfkill0/state
+sleep 1 # if invoke this script in c with system(), must sleep for a while!!!!!
+
+# attach firmware
+rtk_hciattach -n -s 115200 /dev/ttyS1 rtk_h5 >/dev/null &
+sleep 3
+
+hciconfig hci0 up
+sleep 1
+
+MACID=`hciconfig hci0 | grep 'BD Address' | tr -s ' ' | cut -d' ' -f3 | tr -d : | cut -c7-12 | tr a-z A-Z`
+if [ "xxx$MACID" != "xxx" ]; then
+	name=SmartAudio-$MACID
+else
+	name=SmartAudio
+fi
+sed -i "s/\(^Name = \)\(.*\)/\1$name/g" /etc/bluetooth/main.conf
+
+# turn on bluetooth service
+bluetoothd
+
+hciconfig hci0 reset
+sleep 1
+
+# open scan and be-scan func
+hciconfig hci0 piscan up
+
+# turn on file transfer service
+sdptool add OPUSH
+
+# reponse connection request automatic
+agent --adapter hci0 0000 &
+
+# turn on phone call service
+ofonod -n '*' &
+
+# turn on call control service.
+bt_audio &

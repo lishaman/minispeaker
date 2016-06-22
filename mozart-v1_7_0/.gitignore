@@ -1,0 +1,13 @@
+configs/config.mk
+*.o
+*.o.cmd
+*.a.cmd
+tags
+!.gitignore
+cscope.*
+*~
+*.stamp_built
+*.stamp_configured
+*.stamp_patched
+*.stamp_target_installed
+*.stamp_host_installed

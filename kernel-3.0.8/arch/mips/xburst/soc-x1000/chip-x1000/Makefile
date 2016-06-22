@@ -1,0 +1,10 @@
+
+
+obj-$(CONFIG_PRODUCT_X1000_PHOENIX)		+= phoenix/
+obj-$(CONFIG_PRODUCT_X1000_CANNA)		+= canna/
+obj-$(CONFIG_PRODUCT_X1000_ASLMOM)		+= aslmom/
+obj-$(CONFIG_PRODUCT_X1000_YOUTH)		+= youth/
+obj-$(CONFIG_PRODUCT_X1000_HL01)		+= hl01/
+obj-$(CONFIG_PRODUCT_X1000_SF_AUD_HM02W01)	+= sf_aud_hm02w01/
+obj-$(CONFIG_PRODUCT_X1000_HALLEY2)             += halley2/
+obj-$(CONFIG_PRODUCT_X1000_PANSY)		+= pansy/

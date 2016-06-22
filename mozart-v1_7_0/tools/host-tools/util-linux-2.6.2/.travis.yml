@@ -1,0 +1,38 @@
+language: c
+
+git:
+  depth: 1500
+
+compiler:
+  - gcc
+  - clang
+
+env:
+  - MAKE_CHECK="nonroot"
+  - MAKE_CHECK="root"
+  - MAKE_CHECK="dist"
+
+branches:
+  only:
+    - master
+    - /^stable.*/
+    - /^travis.*/
+
+install:
+  - source ./.travis-functions.sh
+  - travis_install_script
+
+before_script:
+  - travis_before_script
+
+script:
+  - travis_script
+
+after_script:
+  - travis_after_script
+
+before_install:
+  - $CC --version
+  - which $CC
+  # workaround clang not system wide, fail on sudo make install
+  - export CC=`which $CC`

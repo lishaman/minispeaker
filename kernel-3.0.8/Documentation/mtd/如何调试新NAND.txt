@@ -1,0 +1,243 @@
+如何调试新NAND flash
+================================
+
+v1.0.1
+Fighter Sun <wanmyqawdr@126.com>
+
+目录
+	. Kernel 配置
+	. 驱动代码修改
+	. 板级代码修改
+	. 24小时老化测试
+		 测试环境准备
+		 测试流程
+		 NAND flash 信息
+		 NAND flash 信息搜索策略
+		 针对特定板子的老化测试
+	. 报告问题
+      
+	
+kernel 配置
+===========
+关闭 CONFIG_NAND
+打开 CONFIG_MTD, CONFIG_MTD_UBI, CONFIG_MTD_NAND_ECC_BCH,
+    CONFIG_MTD_NAND_JZ4780, CONFIG_UBIFS_FS
+      
+	  
+驱动代码修改
+============
+drivers/mtd/nand/jz4780_nand.c
+
+1. 在
+	* ******************************************************
+	*  	NAND flash chip name & ID
+	* ******************************************************
+	加入NAND flash 名称 和 Nand flash 设备id
+	例如:
+	        #define NAND_FLASH_K9GBG08U0A_NANE           "K9GBG08U0A"
+	        #define NAND_FLASH_K9GBG08U0A_ID             0xd7
+
+2. 在
+	* ******************************************************
+	* 	Supported NAND flash chips
+	* ******************************************************
+	中加入 NAND flash 匹配信息
+	例如:
+	{
+	    NAND_FLASH_K9GBG08U0A_NANE, NAND_FLASH_K9GBG08U0A_ID,
+	    0, 4096, 0, LP_OPTIONS
+	},
+		
+3. 在
+	* ******************************************************
+	* 	Supported NAND flash chips
+	* ******************************************************
+	中加入NAND flash 信息
+	例如:
+	{
+	    /*
+	     * Datasheet of K9GBG08U0A, Rev-1.3, P5, S1.2
+	     * ECC : 24bit/1KB
+	     */
+	    COMMON_NAND_CHIP_INFO(
+	        NAND_FLASH_K9GBG08U0A_NANE, NAND_FLASH_K9GBG08U0A_ID,
+	        1024, 32, 0,
+	        12, 5, 12, 5, 20, 5, 12, 5, 12, 10,
+	        25, 25, 300, 100, 100, 300, 12, 20, 300, 100,
+	        100, 200 * 1000, 1 * 1000, 200 * 1000,
+	        5 * 1000 * 1000, 0, BUS_WIDTH_8,
+	        NAND_OUTPUT_NORMAL_DRIVER,
+	        CAN_NOT_ADJUST_RB_DOWN_STRENGTH,
+	        samsung_nand_pre_init)
+	},
+
+. 以上填入信息可以在NAND flash 手册中找到
+
+板级代码修改
+============
+1. 以ji8070a板子为例说明:
+	在 arch/mips/xburst/soc-4780/board/ji8070 中添加以下文件:
+	ji8070a-nand-mtd.c
+
+	在 Makefile 中添加:
+	obj-$(CONFIG_MTD_NAND_JZ4780) += ji8070a-nand-mtd.o
+			   
+2. 概要说明 ji8070a-nand-mtd.c 的内容
+	. flash分区表，分区数量，名称，大小
+		static struct mtd_partition parts[]
+
+	. 板子上挂了几片NAND，挂在那里，R/B# pin, CS pin 连在那些GPIO上
+		static nand_flash_if_t nand_interfaces[]
+
+	. 针对板子的NAND flash 信息调整，包括时序，驱动力，预初始化函数
+		static nand_flash_info_t board_support_nand_info_table[]
+
+	. 以上信息包括 ECC 类型，R/B# 使用轮询还是中断，数据传输使用DMA还是CPU...
+	  将汇总至以下结构体，并传给驱动程序
+		static struct jz4780_nand_platform_data nand_pdata
+
+24小时老化测试
+=============
+1. 测试环境准备
+	. Kernel 配置增加选择：
+		CONFIG_RELAY=y
+		CONFIG_BLK_DEV_INITRD=y
+		CONFIG_INITRAMFS_SOURCE="./drivers/mtd/tests/ramdisk-mtd-test"
+		CONFIG_INITRAMFS_ROOT_UID=0
+		CONFIG_INITRAMFS_ROOT_GID=0
+		CONFIG_RD_GZIP=y
+
+		CONFIG_CMDLINE_BOOL=y
+		CONFIG_CMDLINE="mem=256M@0x0 mem=768M@0x30000000 console=ttyS3,57600n8 ip=off root=/dev/ram0 rw rdinit=/init"
+		CONFIG_CMDLINE_OVERRIDE=y
+
+	. 烧录重新生成的zImage，如果使用xboot引导，请参考xboot配置：q8_nand_for_fighter_config
+
+2. 测试流程
+	. 确认 NAND chip 配置正确：
+		cat /sys/kernel/debug/jz4780-nand/jz4780_nand.x
+		cat /sys/kernel/debug/gpio
+		cat /sys/kernel/debug/jz4780-gpemc
+	. 功能测试:
+	通过 nandtest 工具确认, 例如
+		nandtest /dev/mtd7
+
+	通过创建ubi文件系统测试，例如在mtd7设备上创建一个200MB文件系统测试
+		ubiformat /dev/mtd7
+		ubiattach -m 7 -d 0 /dev/ubi_ctrl
+		ubimkvol /dev/ubi0 -N testfs -s 200MiB
+		mkdir testfs
+		mount -t ubifs /dev/ubi0_0 testfs
+	向其中写入文件
+		cp testfile ./testfs
+		sync
+	重启机器
+		reboot
+	重新执行挂载，并读出文件确认正确
+		ubiattach -m 7 -d 0 /dev/ubi_ctrl
+		mkdir testfs
+		mount -t ubifs /dev/ubi0_0 testfs
+		cp ./testfs/testfile ./testfile1
+		diff testfile testfile1
+
+3. NAND flash 信息
+	在驱动或板级中你会发现类似如下结构:
+	{
+	   /*
+	    * Datasheet of K9GBG08U0A, Rev-1.3, P5, S1.2
+	    * ECC : 24bit/1KB
+	    */
+	    COMMON_NAND_CHIP_INFO(
+	        NAND_FLASH_K9GBG08U0A_NANE, NAND_FLASH_K9GBG08U0A_ID,
+	        1024, 32, 0,
+	        12, 5, 12, 5, 20, 5, 12, 5, 12, 10,
+	        25, 25, 300, 100, 100, 300, 12, 20, 300, 100,
+	        100, 200 * 1000, 1 * 1000, 200 * 1000,
+	        5 * 1000 * 1000, 0, BUS_WIDTH_8,
+	        NAND_OUTPUT_NORMAL_DRIVER,
+	        CAN_NOT_ADJUST_RB_DOWN_STRENGTH,
+	        samsung_nand_pre_init)
+	},
+
+	其中包含了针对特定Nand flash的:
+		. ECC 强度
+		. 时序信息
+		. 驱动力调整
+		. 预初始化函数
+
+	. 更具体的定义请参考 arch/mips/xburst/soc-4780/include/mach/jz4780_nand.h
+
+4. NAND flash 信息搜索策略
+	jz4780_nand.c 中的 NAND flash 信息称为:                 驱动内置默认信息
+	板级代码,如ji8070a-nand-mtd.c，中的 NAND flash 信息称为:  板级调整信息
+
+	. 驱动会优先使用 板级调整信息，即: 你有机会调整时序信息，
+	  以通过mtd_torturetest 或通过修改其他参数以适应你的需求
+
+	. 如果你没有提供 板级调整信息，那么驱动会使用 驱动内置默认信息
+
+5. 针对特定板子的老化测试
+	. 测试准备:
+		配置内核 CONFIG_MTD_TORTURE_TEST = m
+		编译内核产生 mtd_torturetest.ko
+		复制到ramdisk-mtd-test
+		重新编译烧录
+
+	. 测试执行
+		例如针对mtd5设备执行100000次循环测试 （循环测试可以调节，保证测试时间即可）
+		insmod mtd_torture dev=5 cycles_count=100000
+
+	. 如果测试失败
+		调整ji8070a-nand-mtd.c, 修改时序参数，例如
+		{
+		   /*
+		    * Datasheet of K9GBG08U0A, Rev-1.3, P5, S1.2
+		    * ECC : 24bit/1KB
+		    */
+		    COMMON_NAND_CHIP_INFO(
+		        NAND_FLASH_K9GBG08U0A_NANE, NAND_FLASH_K9GBG08U0A_ID,
+		        1024, 32,
+		        /*
+		         * 为了通过mtd_torturetest,此处所有关键时序+10ns
+		         * ******************************
+		         */
+		        10,
+		        /*
+		         * ******************************
+		         */
+		        12, 5, 12, 5, 20, 5, 12, 5, 12, 10,
+		        25, 25, 300, 100, 100, 300, 12, 20, 300, 100,
+		        100, 200 * 1000, 1 * 1000, 200 * 1000,
+		        5 * 1000 * 1000, 0, BUS_WIDTH_8,
+		        NAND_OUTPUT_UNDER_DRIVER1,
+		        CAN_NOT_ADJUST_RB_DOWN_STRENGTH,
+		        samsung_nand_pre_init)
+		},
+
+报告问题
+=======
+如果本文档不能解决你的问题，请向 wzsun@ingenic.cn 报告
+
+附加以下信息：
+	. 你的代码修改
+
+	. NAND 型号
+
+	. kernel 配置 (kernel/.config)
+	. 完整的kernel log
+
+	. ps -A
+
+	. cat /sys/kernel/debug/jz4780-nand/jz4780_nand.x
+	. cat /sys/kernel/debug/gpio
+	. cat /sys/kernel/debug/jz4780-gpemc
+
+	. cat /sys/class/dma/dma0chan31/in_use
+	. cat /sys/class/dma/dma0chan30/in_use
+
+	. cat /proc/interrupts
+	. cat /proc/iomem
+
+========
+All Done
+

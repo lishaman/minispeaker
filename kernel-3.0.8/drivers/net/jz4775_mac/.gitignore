@@ -1,0 +1,5 @@
+*.o.cmd
+*.o
+cscope.*
+modules.order
+tags

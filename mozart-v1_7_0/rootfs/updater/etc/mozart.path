@@ -1,0 +1,10 @@
+#! /bin/sh
+# general settings
+export PATH=/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin
+export PATH=$PATH:/usr/test
+export PATH=$PATH:/usr/fs/bin:/usr/fs/sbin:/usr/fs/usr/bin:/usr/fs/usr/sbin
+export PATH=$PATH:/usr/fs/usr/test
+
+export LD_LIBRARY_PATH=/usr/local/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/fs/lib:/usr/fs/usr/lib:/usr/fs/lib/
+

@@ -1,0 +1,49 @@
+
+# make the ssid visible?
+# 0: ssid is visible
+# 1: ssid is hidden
+ignore_broadcast_ssid=0
+
+
+# control interface path
+ctrl_interface=/var/run/hostapd
+
+
+# Qos support
+wmm_enabled=1
+
+
+# turn on 802.11n support
+# ht_capab need hw support, check with command `iw list`
+wme_enabled=1
+ieee80211n=1
+#ht_capab=[HT40+][SHORT-GI-40][DSSS_CCK-40]
+
+
+# max station can connect at the same time.
+max_num_sta=20
+
+
+# adjust to fit location
+# Here is the authoritative list of countries:
+# http://www.iso.org/iso/country_codes/iso_3166_code_lists/country_names_and_code_elements.htm
+country_code=CN
+# let your AP broadcast the settings that agree with the above-mentioned regulatory requirements per country
+ieee80211d=1
+
+
+## Help Info Below ##
+#ieee80211n: Set to 1 to enable 802.11n support, 0 to disable it
+#ht_capab: A list of the 802.11n features supported by your device
+
+# macaddr_acl: This controls mac address filtering. Mac addresses are easily spoofed, so only consider the use of this to be augmenting other security measures you have in place.
+# auth_algs: This is a bit field where the first bit (1) is for open auth, the second bit (2) is for Shared key auth (wep) and both (3) is both.
+# ignore_broadcast_ssid: This enables/disables broadcasting the ssid.
+# wpa: This is a bitfield like auth_algs. The first bit enables wpa1 (1), the second bit enables wpa2 (2), and bothe enables both (3)
+# wpa_psk/wpa_passphrase: These establish what the pre-shared key will be for wpa authentication.
+# wpa_key_mgmt: This controls what key management algorithms a client can authenticate with.
+# wpa_pairwise: This controls wpa's data encryption
+# rsn_pairwise: This controls wpa2's data encryption
+# max_num_sta: max station can connect together
+
+# More Info: http://wireless.kernel.org/en/users/Documentation/hostapd

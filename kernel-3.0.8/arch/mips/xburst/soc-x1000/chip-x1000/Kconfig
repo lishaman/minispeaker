@@ -1,0 +1,87 @@
+
+
+choice
+	prompt "Board type"
+	depends on SOC_X1000
+	default PRODUCT_X1000_PHOENIX
+
+config  PRODUCT_X1000_PHOENIX
+    bool "product x1000 phoenix"
+
+config  PRODUCT_X1000_CANNA
+    bool "product x1000 canna"
+
+config  PRODUCT_X1000_ASLMOM
+    bool "product x1000 aslmom"
+
+config  PRODUCT_X1000_YOUTH
+    bool "product x1000 youth"
+
+config  PRODUCT_X1000_HL01
+    bool "product x1000 hl01"
+
+config  PRODUCT_X1000_SF_AUD_HM02W01
+    bool "product x1000 sf_aud_hm02w01"
+
+config  PRODUCT_X1000_HALLEY2
+        bool "product x1000 halley2"
+
+config  PRODUCT_X1000_PANSY
+        bool "product x1000 pansy"
+endchoice
+
+if PRODUCT_X1000_PHOENIX
+config PRODUCT_NAME
+string
+default "phoenix"
+source "arch/mips/xburst/soc-x1000/chip-x1000/phoenix/Kconfig"
+endif
+
+if PRODUCT_X1000_CANNA
+config PRODUCT_NAME
+string
+default "canna"
+source "arch/mips/xburst/soc-x1000/chip-x1000/canna/Kconfig"
+endif
+
+if PRODUCT_X1000_ASLMOM
+config PRODUCT_NAME
+string
+default "aslmom"
+source "arch/mips/xburst/soc-x1000/chip-x1000/aslmom/Kconfig"
+endif
+
+if PRODUCT_X1000_YOUTH
+config PRODUCT_NAME
+string
+default "youth"
+source "arch/mips/xburst/soc-x1000/chip-x1000/youth/Kconfig"
+endif
+
+if PRODUCT_X1000_HL01
+config PRODUCT_NAME
+string
+default "hl01"
+source "arch/mips/xburst/soc-x1000/chip-x1000/hl01/Kconfig"
+endif
+
+if PRODUCT_X1000_SF_AUD_HM02W01
+config PRODUCT_NAME
+string
+default "sf_aud_hm02w01"
+source "arch/mips/xburst/soc-x1000/chip-x1000/sf_aud_hm02w01/Kconfig"
+endif
+
+if PRODUCT_X1000_HALLEY2
+config PRODUCT_NAME
+string
+default "halley2"
+source "arch/mips/xburst/soc-x1000/chip-x1000/halley2/Kconfig"
+endif
+
+if PRODUCT_X1000_PANSY
+config PRODUCT_NAME
+string
+default "pansy"
+source "arch/mips/xburst/soc-x1000/chip-x1000/pansy/Kconfig"
+endif

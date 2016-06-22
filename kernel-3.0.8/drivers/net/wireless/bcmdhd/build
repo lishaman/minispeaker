@@ -1,0 +1,1 @@
+adb push bcmdhd.ko system/lib/wifi/modules/bcm4330/dhd.ko&&adb shell sync

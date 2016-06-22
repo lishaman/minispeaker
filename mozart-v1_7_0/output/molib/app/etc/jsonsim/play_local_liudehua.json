@@ -1,0 +1,6 @@
+{
+    "command_str": "{\"commandlist\":[{\"commandcontent\":{\"baseurl\":\"local\",\"formatted\":{\"queryalbum\":\"\",\"queryartist\":\"\",\"queryname\":\"titleisnullartistisnullalbumidnull\",\"querystyle\":\"\",\"result\":[{\"album\":\"不盲不爱\",\"artist\":\"刘德华,郑秀文\",\"song\":\"不盲不爱\",\"songid\":\"51149998\",\"path\":\"/mnt/card/51156835.mp3\"},{\"album\":\"不盲不爱\",\"artist\":\"刘德华,郑秀文\",\"song\":\"盲爱\",\"songid\":\"51371696\",\"url\":\"/mnt/card/51371994.mp3\"},{\"album\":\"Array\",\"artist\":\"刘德华\",\"song\":\"不要带她走\",\"songid\":\"20627105\",\"url\":\"/mnt/card/32285069.m4a\"}],\"type\":2},\"nearby_type\":0,\"online_num\":0,\"searchcontent\":\"播放本地刘德华的歌\",\"webtype\":\"music\"},\"commandtype\":\"search\",\"source_type\":\"localmusic\"}],\"debug_info\":\"\",\"handle_text\":\"播放本地刘德华的歌\",\"more_info\":0}\n",
+    "item": [
+      "播放本地刘德华的歌",
+    ]
+}

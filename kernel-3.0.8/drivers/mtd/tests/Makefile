@@ -1,0 +1,9 @@
+obj-$(CONFIG_MTD_OOB_TEST)           += mtd_oobtest.o
+obj-$(CONFIG_MTD_PAGE_TEST)          += mtd_pagetest.o
+obj-$(CONFIG_MTD_READ_TEST)          += mtd_readtest.o
+obj-$(CONFIG_MTD_SPEED_TEST)         += mtd_speedtest.o
+obj-$(CONFIG_MTD_STRESS_TEST)        += mtd_stresstest.o
+obj-$(CONFIG_MTD_SUBPAGE_TEST)       += mtd_subpagetest.o
+obj-$(CONFIG_MTD_TORTURE_TEST)       += mtd_torturetest.o
+obj-$(CONFIG_MTD_NAND_ECC_TEST)      += mtd_nandecctest.o
+obj-$(CONFIG_MTD_NAND_BIT_ERRS_TEST) += mtd_nandbiterrs.o

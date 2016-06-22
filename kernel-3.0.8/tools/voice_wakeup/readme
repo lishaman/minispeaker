@@ -1,0 +1,35 @@
+voice wakeup driver.can be used as a recorder or wakeup.
+
+procedure as follow:
+1. open /dev/snd/dsp3
+
+2. create voice trigger obj
+
+	a. set voice wakeup resource file. example, ivModel_v21.irf. "lingxi lingxi"
+	cat ivModel_v21.irf > /sys/devices/platform/dsp.3/dmic_wakeup_set_res
+	b. create voice wakeup object.
+	echo 1 > /sys/devices/platform/dsp.3/dmic_wakeup_ctl
+
+3. read /dev/snd/dsp3 to record.
+
+4. read node to wait for voice wakeup.
+cat /sys/devices/platform/dsp.3/dmic_wakeup_ctl
+
+
+##############################################################
+
+usage of test_app, for simple test.
+
+cd test_app
+
+make
+ ==> sndkit
+
+note: make sure 'ivModel_v21.irf' is under '/data/TestPcm/'
+
+run:
+sndkit -R -w test.wav -o 1
+
+then speak "ling xi ling xi", console will print "System is Wake Up". or something like
+that. the app is recording at the same time. 'test.wav' is the record file.
+the driver only support 16K samplerate 16bit data width at the moment.

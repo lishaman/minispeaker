@@ -1,0 +1,219 @@
+lgwang@sw1-Rev-1-0:~/winShare/Products/dorado/debug/gui_performace_trace/libs$ adb install ~/winShare/adb/app/AnTuTu_Benchmark_2.9.2.apk 
+5034 KB/s (2759890 bytes in 0.535s)
+	pkg: /data/local/tmp/AnTuTu_Benchmark_2.9.2.apk
+Success
+shell@dorado:/data/app-lib/com.antutu.ABenchMark-1 # ls -l
+-rwxr-xr-x system   system     630288 2012-09-28 16:07 libabenchmark.so
+shell@dorado:/data/data/com.antutu.ABenchMark/lib # ls -l
+-rwxr-xr-x system   system     630288 2012-09-28 16:07 libabenchmark.so
+shell@dorado:/data/data/com.antutu.ABenchMark/lib # 
+
+
+CPU:800MHz, DDRC:200MHz, GPU:300MHz
+no SystemUI.apk, no ImageWallPaper.
+
+GC1000 Driver: VIVANTE_GAL_Unified_Src_drv_5.0.11.p4
+
+$ git log --stat drivers/gpu/vivante/
+commit 8b9d809077e7c8198f3a15aef10ead98d6310763
+Author: lgwang <lgwang@ingenic.cn>
+Date:   Fri Nov 14 16:21:48 2014 +0800
+
+    Add M200 GPU driver memory cache property debug option.
+    EXTRA_CFLAGS += -DINGENIC_MEMORY_CACHEABLE_TRACE=1
+    
+    Change-Id: Icdae7197395b597df9f956ccd5843f2230d35473
+
+ .../Antutu_Benchmark_2.9.2.txt                     |  198 ++++++++++++++++++++
+ .../VIVANTE_GAL_Unified_Src_drv_5.0.11.p4/Makefile |    5 +
+ .../hal/kernel/arch/gc_hal_kernel_hardware.c       |   23 +++
+ .../hal/os/linux/kernel/gc_hal_kernel_device.c     |   11 ++
+ .../hal/os/linux/kernel/gc_hal_kernel_linux.h      |   20 ++
+ .../hal/os/linux/kernel/gc_hal_kernel_os.c         |    6 +-
+ .../hal/os/linux/kernel/platform/m200/m200.c       |   15 ++
+ 7 files changed, 277 insertions(+), 1 deletion(-)
+
+
+
+
+--------------------------------------------------------------------------------
+Original Build option:
+      -DgcdPAGED_MEMORY_CACHEABLE=0 -DgcdNONPAGED_MEMORY_CACHEABLE=0 -DgcdNONPAGED_MEMORY_BUFFERABLE=1
+no CacheFlush
+#define gcmkPAGED_MEMROY_PROT(x)    pgprot_noncached_wa(x)
+
+1st:
+	2D: 350
+	3D: 720
+
+2nd:
+	2D: 351
+	3D: 726
+
+3rd:
+	2D: 345
+	3D: 724
+
+no SystemUI.apk, no ImageWallPaper.
+
+
+Launcher Home: 		54 FPS
+Launcher AllApp: 	42 FPS
+Settings: 		30 FPS
+
+
+1ST Total: 2284
+	RAM: 175
+	CPU integer: 422
+	CPU float: 173
+	2D: 351
+	3D: 707
+	IO: 160
+
+	CPU Freq: 792 MHz
+
+2nd Total: 
+	RAM: 
+	CPU integer: 
+	CPU float: 
+	2D: 
+	3D: 
+	IO: 
+
+	CPU Freq: 792 MHz
+
+
+--------------------------------------------------------------------------------
+Original Build option:
+      -DgcdPAGED_MEMORY_CACHEABLE=0 -DgcdNONPAGED_MEMORY_CACHEABLE=0 -DgcdNONPAGED_MEMORY_BUFFERABLE=1
+no CacheFlush
+#define gcmkPAGED_MEMROY_PROT(x)    pgprot_noncached(x)
+
+1st:
+	2D: 346
+	3D: 436
+
+2nd:
+	2D: 346
+	3D: 445
+
+3rd:
+	2D: 342
+	3D: 444
+
+1ST Total: 2000
+	RAM: 179
+	CPU integer: 417
+	CPU float: 173
+	2D: 347
+	3D: 445
+	IO: 145
+
+	CPU Freq: 792 MHz
+
+2nd Total: 2023
+	RAM: 178
+	CPU integer: 416
+	CPU float: 173
+	2D: 346
+	3D: 448
+	IO: 155
+
+	CPU Freq: 792 MHz
+
+
+
+
+Launcher Home: 		52 FPS
+Launcher AllApp: 	40 FPS
+Settings: 		27 FPS
+
+
+--------------------------------------------------------------------------------
+Build option:
+      -DgcdPAGED_MEMORY_CACHEABLE=1 -DgcdNONPAGED_MEMORY_CACHEABLE=0 -DgcdNONPAGED_MEMORY_BUFFERABLE=1
+no CacheFlush
+
+1st:
+	2D: 350
+	3D: 727
+
+2nd:
+	2D: 350
+	3D: 663
+
+
+3rd:
+	2D: 349
+	3D: 700
+
+
+1st:
+	2D: 350
+	3D: 716
+
+2nd:
+	2D: 350
+	3D: 710
+
+
+3rd:
+	2D: 350
+	3D: 710
+
+Launcher Home: 		50 FPS
+Launcher AllApp: 	42 FPS
+Settings: 		30 FPS
+
+
+--------------------------------------------------------------------------------
+Build option:
+      -DgcdPAGED_MEMORY_CACHEABLE=1 -DgcdNONPAGED_MEMORY_CACHEABLE=1 -DgcdNONPAGED_MEMORY_BUFFERABLE=0
+
+with CacheFlush
+
+1st:
+	2D: 341
+	3D: 670
+
+2nd:
+	2D: 350
+	3D: 672
+
+
+3rd:
+	2D: 349
+	3D: 659
+
+
+
+Launcher Home: 		48 FPS
+Launcher AllApp: 	40 FPS
+Settings Flying: 	29 FPS
+
+
+
+
+
+--------------------------------------------------------------------------------
+Lenovo A320t, MT6582, CPUx4, LCD-480x800, GPU(Mali-400 MP) 
+
+1st Total: 13114
+	RAM: 2788
+	CPU integer: 3984
+	CPU float: 4053
+	2D: 317
+	3D: 1337
+	IO: 550
+
+	CPU Freq: 1300 MHz
+
+2nd Total: 13106
+	RAM: 2782
+	CPU integer: 3975
+	CPU float: 4033
+	2D: 316
+	3D: 1337
+	IO: 550
+
+	CPU Freq: 1300 MHz

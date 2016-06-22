@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# turn off file transfer service.
+sdptool delete OPUSH
+
+# stop scan and be-scan func
+hciconfig hci0 piscan down 
+
+hciconfig hci0 down 
+
+# poweroff
+echo 0 > /sys/class/rfkill/rfkill0/state
+
+rm -rf /var/run/dbus/pid
+rm -rf /var/run/messagebus.pid
+
+killall rtk_hciattach dbus-daemon bluetoothd agent ofonod bt_audio

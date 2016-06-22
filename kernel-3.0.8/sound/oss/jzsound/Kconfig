@@ -1,0 +1,213 @@
+
+menuconfig SOUND_OSS_XBURST
+	bool "Open Sound System of xburst"
+	#depends on SOUND_OSS_CORE
+	default y
+	help
+	  Say 'Y' to enable Open Sound System drivers of xburst.
+
+
+if SOUND_OSS_XBURST
+#*******************************************************
+config SOUND_JZ_I2S_V12
+	bool "Jz On-Chip I2S driver v12"
+	depends on SOC_4775 || SOC_4780 || SOC_M200
+	help
+		Say 'Y' to enable On-Chip i2s
+
+if SOUND_JZ_I2S_V12
+
+config CODEC_STANDBY_V12
+	depends on JZ_EXTERNAL_CODEC_V12 || JZ_INTERNAL_CODEC_V12
+	bool "codec standby"
+	help
+	Say "Y" to enable codec standby function
+
+menuconfig JZ_INTERNAL_CODEC_V12
+
+	bool "xburst internal codec"
+	depends on SOUND_JZ_I2S_V12
+	help
+		Say "Y" to select xburst internal codec.
+
+if JZ_INTERNAL_CODEC_V12
+
+	config JZ4780_INTERNAL_CODEC
+	bool "jz4780 internal codec"
+	depends on SOC_4780
+	help
+		Say "Y" to enable jz4780 internal codec.
+
+	config JZ4775_INTERNAL_CODEC
+	bool "jz4775 internal codec"
+	depends on SOC_4775
+	help
+		Say "Y" to enable jz4775 internal codec.
+
+	config M200_INTERNAL_CODEC_V12
+	bool "m200 internal codec"
+	depends on SOC_M200
+	help
+		Say "Y" to enable m200 internal codec.
+
+endif #JZ_INTERNAL_CODEC
+
+menuconfig JZ_EXTERNAL_CODEC_V12
+	bool "xburst external codec"
+	help
+		Say "Y" to setect xburst external codec		\
+		Note :it is will be unused when internal codec select
+
+if JZ_EXTERNAL_CODEC_V12 #external codec
+
+	config ATC2603_EXTERNAL_CODEC
+	depends on SPI
+	bool "atc2603 external codec"
+	help
+		Say "Y" to enable atc260x codec
+
+	config WM8594_CODEC_V12
+	bool "wm8594 external codec"
+	help
+		Say "Y" to enable wm8594 codec
+
+	config I2S_VIRUAL_EXTERNAL_CODEC
+        bool "virual i2s external codec"
+        help
+                Say "Y" to enable virual i2s external codec
+
+endif #JZ_EXTERNAL_CODEC
+
+endif #SOUND_I2S_JZ47XX
+
+config SOUND_JZ_I2S_V13
+	bool "Jz On-Chip I2S driver v13"
+	depends on SOC_X1000
+	help
+		Say 'Y' to enable On-Chip i2s
+
+if SOUND_JZ_I2S_V13
+
+menuconfig JZ_INTERNAL_CODEC_V13
+	bool "xburst internal codec"
+	depends on SOUND_JZ_I2S_V13
+	help
+		Say "Y" to select xburst internal codec.
+
+if JZ_INTERNAL_CODEC_V13
+	config X1000_INTERNAL_CODEC_V13
+	bool "x1000 internal codec"
+	depends on SOC_X1000
+	help
+		Say "Y" to enable x1000 internal codec.
+
+endif #JZ_INTERNAL_CODEC_V13
+
+menuconfig JZ_EXTERNAL_CODEC_V13
+	bool "xburst external codec"
+	help
+		Say "Y" to setect xburst external codec		\
+		Note :it is will be unused when internal codec select
+
+if JZ_EXTERNAL_CODEC_V13 #external codec
+	config I2S_VIRUAL_EXTERNAL_CODEC
+        bool "virual i2s external codec"
+        help
+                Say "Y" to enable virual i2s external codec
+
+	config AKM4753_EXTERNAL_CODEC
+        bool "akm4753 external codec"
+        help
+                Say "Y" to enable akm4753 external codec
+
+	config AKM4951_EXTERNAL_CODEC
+        bool "akm4951 external codec"
+        help
+                Say "Y" to enable akm4951 external codec
+
+	config AKM4345_EXTERNAL_CODEC
+        bool "akm4345 external codec"
+        help
+                Say "Y" to enable akm4345 external codec
+
+endif #JZ_EXTERNAL_CODEC
+
+endif #SOUND_JZ_I2S_V13
+#******************************************************
+config SOUND_JZ_PCM_V12
+	bool "Jz On-Chip PCM driver"
+	help
+		Say 'Y' to enable On-Chip pcm
+
+#******************************************************
+config SOUND_JZ_SPDIF_V12
+	bool "Jz On-Chip SPDIF driver V12"
+	depends on SOC_M200
+	default n
+	help
+		Say 'Y' to enable On-Chip spdif
+
+config SOUND_JZ_SPDIF_V13
+	bool "Jz On-Chip SPDIF driver V13"
+	depends on SOC_X1000
+	default n
+	help
+		Say 'Y' to enable On-Chip spdif
+
+menuconfig SOUND_JZ_DMIC_V12
+	bool "dmic record device of xburst"
+	depends on SOC_M200 || SOC_X1000
+	default n
+	help
+	Say 'Y' to enable sound dmic devices support.
+
+if SOUND_JZ_DMIC_V12
+config JZ_DMIC0
+	bool "select dmic0"
+	help
+	Say "Y" to enable dmic0.
+
+config JZ_DMIC1
+	bool "select dmic1"
+	help
+	Say "Y" to enable dmic1.
+
+endif
+
+menuconfig SOUND_XBURST_DETECT
+	bool "sound device detect of xburst"
+	default n
+	help
+	Say 'Y' to enable sound detect devices support.
+
+if SOUND_XBURST_DETECT
+
+menu "JZ headset detect"
+
+config JZ_HP_DETECT_CODEC_V12
+	bool "headphone codec detect"
+	depends on JZ_INTERNAL_CODEC_V12
+	help
+	Say "Y" to enable internal codec headphone detect.
+
+config JZ_HP_DETECT_GPIO_V12
+	bool "headphone gpio detect"
+	depends on JZ_INTERNAL_CODEC_V12 || JZ_EXTERNAL_CODEC_V12
+	help
+	Say "Y" to enable gpio headphone detect.
+endmenu #"JZ headset detect"
+
+config LINEIN_SWITCH_BY_DRIVER
+        bool "linein replay route switch by audio driver"
+        help
+	Say "Y" to enable linein replay route switch by audio driver, according to the linein detect pin.
+
+endif #SOUND_XBURST_DETECT
+
+#menuconfig SOUND_XBURST_DEBUG_V12
+#	bool "sound debug device of xburst"
+#	default n
+#	help
+#	  Say 'Y' to enable sound debug devices support.
+#
+endif #SOUND_OSS_XBURST

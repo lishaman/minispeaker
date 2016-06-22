@@ -1,0 +1,34 @@
+<package-name>_DIR := </path/to/the/package>
+<package-name>_DEPENDENCIES := <depend-A> <depend-B> ...
+
+TARGETS += <package-name>
+
+define <package-name>_PATCH_CMDS
+	(cd $(@D); \
+		your command here \
+	)
+endef
+
+define <package-name>_CONFIGURE_CMDS
+	(cd $(@D); \
+	    your command here \
+	)
+endef
+
+define <package-name>_BUILD_CMDS
+	$(MAKE) -C $(@D)
+endef
+
+define <package-name>_INSTALL_TARGET_CMDS
+	$(MAKE) -C $(@D) DESTDIR=$(MOZART_DIR) install
+endef
+
+define <package-name>_CLEAN_CMDS
+	-$(MAKE) -C $(@D) clean
+endef
+
+define <package-name>_UNINSTALL_TARGET_CMDS
+	-$(MAKE) -C $(@D) DESTDIR=$(MOZART_DIR) uninstall
+endef
+
+$(eval $(call install_rules,<package-name>,$(<package-name>_DIR),target))

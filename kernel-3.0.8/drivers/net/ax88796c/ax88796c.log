@@ -1,0 +1,312 @@
+
+
+U-Boot 1.0.0 (Jul 29 2010 - 11:09:39)
+
+U-Boot code: 33F80000 -> 33F982A8  BSS: -> 33F9BBF8
+IRQ Stack: 33fbcbf4
+FIQ Stack: 33fbdbf4
+DRAM Configuration:
+Bank #0: 30000000 64 MB
+Flash:  1 MB
+NAND:64 MB
+In:    serial
+Out:   serial
+Err:   serial
+Hit any key to stop autoboot:  0
+zImage magic = 0x016f2818
+NOW, Booting Linux......
+Uncompressing Linux... done, booting the kernel.
+[    0.000000] Linux version 2.6.35.1 (asix@localhost.localdomain) (gcc version 4.3.5 (Buildroot 2010.08-rc1) ) #2 Tue Aug 24 14:55:05 CST 2010
+[    0.000000] CPU: ARM920T [41129200] revision 0 (ARMv4T), cr=c0007177
+[    0.000000] CPU: VIVT data cache, VIVT instruction cache
+[    0.000000] Machine: SMDK2440
+[    0.000000] Warning: bad configuration page, trying to continue
+[    0.000000] Memory policy: ECC disabled, Data cache writeback
+[    0.000000] CPU S3C2440A (id 0x32440001)
+[    0.000000] S3C24XX Clocks, Copyright 2004 Simtec Electronics
+[    0.000000] S3C244X: core 406.425 MHz, memory 135.475 MHz, peripheral 67.737 MHz
+[    0.000000] CLOCK: Slow mode (2.116 MHz), fast, MPLL on, UPLL on
+[    0.000000] Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 16256
+[    0.000000] Kernel command line: noinitrd root=/dev/mtdblock2 console=ttySAC0,115200 mem=64M init=/linuxrc
+[    0.000000] PID hash table entries: 256 (order: -2, 1024 bytes)
+[    0.000000] Dentry cache hash table entries: 8192 (order: 3, 32768 bytes)
+[    0.000000] Inode-cache hash table entries: 4096 (order: 2, 16384 bytes)
+[    0.000000] Memory: 64MB = 64MB total
+[    0.000000] Memory: 61500k/61500k available, 4036k reserved, 0K highmem
+[    0.000000] Virtual kernel memory layout:
+[    0.000000]     vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+[    0.000000]     fixmap  : 0xfff00000 - 0xfffe0000   ( 896 kB)
+[    0.000000]     DMA     : 0xffc00000 - 0xffe00000   (   2 MB)
+[    0.000000]     vmalloc : 0xc4800000 - 0xe0000000   ( 440 MB)
+[    0.000000]     lowmem  : 0xc0000000 - 0xc4000000   (  64 MB)
+[    0.000000]     modules : 0xbf000000 - 0xc0000000   (  16 MB)
+[    0.000000]       .init : 0xc0008000 - 0xc0026000   ( 120 kB)
+[    0.000000]       .text : 0xc0026000 - 0xc0302000   (2928 kB)
+[    0.000000]       .data : 0xc0314000 - 0xc0335e00   ( 136 kB)
+[    0.000000] Hierarchical RCU implementation.
+[    0.000000]  RCU-based detection of stalled CPUs is disabled.
+[    0.000000]  Verbose stalled-CPUs detection is disabled.
+[    0.000000] NR_IRQS:85
+[    0.000000] irq: clearing pending ext status 00000100
+[    0.000000] irq: clearing subpending status 00000002
+[    0.000000] Console: colour dummy device 80x30
+[    0.000000] console [ttySAC0] enabled
+[    0.015000] Calibrating delay loop... 202.75 BogoMIPS (lpj=506880)
+[    0.110000] pid_max: default: 32768 minimum: 301
+[    0.110000] Mount-cache hash table entries: 512
+[    0.115000] CPU: Testing write buffer coherency: ok
+[    0.125000] gpiochip_add: gpios 288..303 (GPIOK) failed to register
+[    0.130000] gpiochip_add: gpios 320..334 (GPIOL) failed to register
+[    0.135000] gpiochip_add: gpios 352..353 (GPIOM) failed to register
+[    0.145000] NET: Registered protocol family 16
+[    0.165000] S3C Power Management, Copyright 2004 Simtec Electronics
+[    0.165000] S3C2440: Initialising architecture
+[    0.170000] S3C2440: IRQ Support
+[    0.175000] S3C244X: Clock Support, DVS off
+[    0.265000] bio: create slab <bio-0> at 0
+[    0.275000] SCSI subsystem initialized
+[    0.275000] usbcore: registered new interface driver usbfs
+[    0.280000] usbcore: registered new interface driver hub
+[    0.285000] usbcore: registered new device driver usb
+[    0.315000] NET: Registered protocol family 2
+[    0.315000] IP route cache hash table entries: 1024 (order: 0, 4096 bytes)
+[    0.320000] TCP established hash table entries: 2048 (order: 2, 16384 bytes)
+[    0.325000] TCP bind hash table entries: 2048 (order: 3, 40960 bytes)
+[    0.330000] TCP: Hash tables configured (established 2048 bind 2048)
+[    0.335000] TCP reno registered
+[    0.335000] UDP hash table entries: 128 (order: 0, 6144 bytes)
+[    0.340000] UDP-Lite hash table entries: 128 (order: 0, 6144 bytes)
+[    0.345000] NET: Registered protocol family 1
+[    0.350000] NetWinder Floating Point Emulator V0.97 (extended precision)
+[    0.365000] JFFS2 version 2.2. (NAND) ? 2001-2006 Red Hat, Inc.
+[    0.365000] msgmni has been set to 120
+[    0.370000] io scheduler noop registered
+[    0.375000] io scheduler deadline registered
+[    0.375000] io scheduler cfq registered (default)
+[    0.400000] Console: switching to colour frame buffer device 30x40
+[    0.405000] fb0: s3c2410fb frame buffer device
+[    1.820000] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    1.840000] s3c2440-uart.0: s3c2410_serial0 at MMIO 0x50000000 (irq = 70) is a S3C2440
+[    1.845000] s3c2440-uart.1: s3c2410_serial1 at MMIO 0x50004000 (irq = 73) is a S3C2440
+[    1.855000] s3c2440-uart.2: s3c2410_serial2 at MMIO 0x50008000 (irq = 76) is a S3C2440
+[    1.920000] brd: module loaded
+[    1.950000] loop: module loaded
+[    1.960000] S3C24XX NAND Driver, (c) 2004 Simtec Electronics
+[    1.960000] s3c24xx-nand s3c2440-nand: Tacls=2, 14ns Twrph0=6 44ns, Twrph1=2 14ns
+[    1.965000] s3c24xx-nand s3c2440-nand: NAND ECC disabled
+[    1.970000] NAND device: Manufacturer ID: 0xec, Chip ID: 0x76 (Samsung NAND 64MiB 3,3V 8-bit)
+[    1.975000] NAND_ECC_NONE selected by board driver. This is not recommended !!
+[    1.980000] Scanning device for bad blocks
+[    1.980000] Bad eraseblock 9 at 0x000000024000
+[    1.985000] Bad eraseblock 10 at 0x000000028000
+[    1.990000] Bad eraseblock 11 at 0x00000002c000
+[    2.200000] Creating 4 MTD partitions on "NAND 64MiB 3,3V 8-bit":
+[    2.200000] 0x000000000000-0x000000030000 : "Boot Agent"
+[    2.215000] 0x000000030000-0x000000200000 : "S3C2440 Linux Kernel"
+[    2.225000] 0x000000200000-0x000001e00000 : "S3C2410 Root (Read Only)"
+[    2.235000] 0x000001e00000-0x000004000000 : "S3C2410 User"
+[    2.250000] usbcore: registered new interface driver asix
+[    2.250000] usbmon: debugfs is not available
+[    2.255000] ohci_hcd: USB 1.1 'Open' Host Controller (OHCI) Driver
+[    2.265000] s3c2410-ohci s3c2410-ohci: S3C24XX OHCI
+[    2.265000] s3c2410-ohci s3c2410-ohci: new USB bus registered, assigned bus number 1
+[    2.270000] s3c2410-ohci s3c2410-ohci: irq 42, io mem 0x49000000
+[    2.335000] hub 1-0:1.0: USB hub found
+[    2.335000] hub 1-0:1.0: 2 ports detected
+[    2.345000] Initializing USB Mass Storage driver...
+[    2.345000] usbcore: registered new interface driver usb-storage
+[    2.350000] USB Mass Storage support registered.
+[    2.355000] usbcore: registered new interface driver libusual
+[    2.365000] usbcore: registered new interface driver usbserial
+[    2.365000] USB Serial support registered for generic
+[    2.375000] usbcore: registered new interface driver usbserial_generic
+[    2.380000] usbserial: USB Serial Driver core
+[    2.385000] USB Serial support registered for FTDI USB Serial Device
+[    2.390000] usbcore: registered new interface driver ftdi_sio
+[    2.395000] ftdi_sio: v1.6.0:USB FTDI Serial Converters Driver
+[    2.400000] USB Serial support registered for pl2303
+[    2.405000] usbcore: registered new interface driver pl2303
+[    2.410000] pl2303: Prolific PL2303 USB to serial adaptor driver
+[    2.420000] mice: PS/2 mouse device common for all mice
+[    2.425000] S3C2410 Watchdog Timer, (c) 2004 Simtec Electronics
+[    2.430000] s3c2410-wdt s3c2410-wdt: watchdog inactive, reset disabled, irq enabled
+[    2.440000] TCP cubic registered
+[    2.445000] NET: Registered protocol family 17
+[    2.460000] VFS: Mounted root (cramfs filesystem) readonly on device 31:2.
+[    2.465000] Freeing init memory: 120K
+[    3.115000] Empty flash at 0x00b6f9a0 ends at 0x00b6fa00
+[    3.275000] Empty flash at 0x0139aaac ends at 0x0139ac00
+Initializing random number generator... read-only file system detected...done
+Starting network...
+Starting vsftpd: OK
+bash-4.1#
+bash-4.1# insmod ax88796c.ko msg_enable=0xffff
+[  137.490000] AX88796C: Power saving disabled
+[  137.695000] Dump AX88796C registers:
+[  137.695000]        Page0   Page1   Page2   Page3   Page4   Page5   Page6   Page7
+[  137.700000] 0x00   0x80c0  0x80c1  0x80c2  0x80c3  0x80c4  0x80c5  0x80c6  0x80c7
+[  137.705000] 0x02   0x1234  0x0000  0x0000  0x0000  0x0000  0x0000  0x0000  0x0000
+[  137.715000] 0x04   0x0043  0x0000  0x1002  0x0000  0xf000  0x0000  0x0000  0x0000
+[  137.720000] 0x06   0x0200  0x0000  0x05f8  0x0000  0x0000  0x0000  0x0000  0x0000
+[  137.730000] 0x08   0xffff  0x2000  0x0000  0x0000  0x0000  0x0000  0x0000  0x0000
+[  137.735000] 0x0a   0x0000  0x208a  0x0000  0x0000  0x0c00  0x0000  0x0000  0x0000
+[  137.745000] 0x0c   0xc820  0x0101  0x0204  0x0000  0xff00  0x0000  0x0000  0x0000
+[  137.750000] 0x0e   0x0318  0x0101  0x1508  0x0000  0x0000  0x0000  0x0000  0x0000
+[  137.760000] 0x10   0x001f  0xc000  0x120c  0x0000  0x0000  0x0000  0x0000  0x0000
+[  137.770000] 0x12   0x0040  0x0900  0x0000  0x0000  0x0000  0x0000  0x0000  0x0000
+[  137.775000] 0x14   0x0000  0x000f  0x4224  0x0000  0x0000  0x0000  0x0000  0x0000
+[  137.785000] 0x16   0x0000  0x0000  0x0001  0xffff  0x0000  0x0000  0x0000  0x0000
+[  137.790000] 0x18   0x4000  0x0000  0x043f  0x2000  0x0000  0x0000  0x0000  0x0000
+[  137.800000] 0x1a   0x0000  0x0000  0x0000  0x1500  0x0000  0x0000  0x0000  0x0000
+[  137.805000] 0x1c   0x0000  0x0000  0x0600  0x0048  0x0000  0x0000  0x0000  0x0000
+[  137.815000] 0x1e   0x0000  0x0000  0x0000  0x0000  0x0000  0x0000  0x0000  0x0000
+[  137.820000]
+[  137.825000] ASIX AX88796C Fast Ethernet Adapter:v1.4.0 10:05:21 Mar 28 2011
+[  137.825000] <6>  http://www.asix.com.tw
+[  137.830000] AX88796C: MAC Address 00-12-34-56-78-9a
+[  137.860000] eth0:  at 0x8000000 IRQ 63
+bash-4.1#
+bash-4.1# ifconfig eth0 192.168.1.33
+[  144.780000] Dump PHY registers:
+[  144.785000]   MR0 = 0x3000
+[  144.785000]   MR1 = 0x7809
+[  144.785000]   MR2 = 0x003b
+[  144.790000]   MR3 = 0x1891
+[  144.790000]   MR4 = 0x05e1
+[  144.795000]   MR5 = 0x0000
+[  144.795000] Dump AX88796C registers (after initialaztion):
+[  144.800000]        Page0   Page1   Page2   Page3   Page4   Page5   Page6   Page7
+[  144.805000] 0x00   0x80c0  0x80c1  0x80c2  0x80c3  0x80c4  0x80c5  0x80c6  0x80c7
+[  144.810000] 0x02   0x1234  0x0001  0x0000  0x789a  0x0000  0x0000  0x0000  0x0000
+[  144.820000] 0x04   0xca03  0x0000  0x1007  0x3456  0xf000  0x0000  0x0000  0x0000
+[  144.825000] 0x06   0x0200  0x0000  0x05ff  0x0012  0x0000  0x0000  0x0000  0x0000
+[  144.835000] 0x08   0xffff  0x2000  0x0000  0x0000  0x0000  0x0000  0x0000  0x0000
+[  144.845000] 0x0a   0x0000  0x208a  0x3005  0x0000  0x0c00  0x0000  0x0000  0x0000
+[  144.850000] 0x0c   0x9820  0x0101  0x0305  0x0000  0xff00  0x0000  0x0000  0x0000
+[  144.860000] 0x0e   0x031c  0x0101  0x1509  0x0000  0x0000  0x0000  0x0000  0x0000
+[  144.865000] 0x10   0x001f  0x4000  0x120c  0x0000  0x0000  0x0000  0x0000  0x0000
+[  144.875000] 0x12   0x0040  0x0900  0x0000  0x0000  0x031d  0x0000  0x0000  0x0000
+[  144.880000] 0x14   0x0000  0x000f  0x4224  0x0000  0x0200  0x0000  0x0000  0x0000
+[  144.890000] 0x16   0x0000  0x0000  0x0001  0xffff  0x0307  0x0000  0x0000  0x0000
+[  144.895000] 0x18   0x4000  0x0000  0x043f  0x2000  0x0000  0x0000  0x0000  0x0000
+[  144.905000] 0x1a   0x0000  0x0000  0x0000  0x1500  0x0000  0x0000  0x0000  0x0000
+[  144.910000] 0x1c   0x0000  0x0000  0x0600  0x0048  0x0000  0x0000  0x0000  0x0000
+[  144.920000] 0x1e   0x0000  0x0000  0x0000  0x0000  0x0000  0x0000  0x0000  0x0000
+[  144.925000]
+[  144.930000]
+[  144.930000] ax88796c_interrupt: Interrupt status 0x200
+[  144.930000] Dump PHY registers:
+[  144.930000]   MR0 = 0x3000
+[  144.930000]   MR1 = 0x7809
+[  144.930000]   MR2 = 0x003b
+[  144.930000]   MR3 = 0x1891
+[  144.930000]   MR4 = 0x05e1
+[  144.930000]   MR5 = 0x0000
+[  144.930000]
+[  145.930000] eth0: Cable connected
+[  146.445000]
+[  146.445000] ax88796c_interrupt: Interrupt status 0x200
+[  146.445000] Dump PHY registers:
+[  146.445000]   MR0 = 0x3100
+[  146.445000]   MR1 = 0x782d
+[  146.445000]   MR2 = 0x003b
+[  146.445000]   MR3 = 0x1891
+[  146.445000]   MR4 = 0x05e1
+[  146.445000]   MR5 = 0xc5e1
+[  146.445000] eth0: link up, 100Mbps, full-duplex
+[  146.445000]
+
+bash-4.1#
+bash-4.1# ping -c 3 192.168.1.1
+PING 192.168.1.1 (192.168.1.1): 56 data bytes
+[  152.340000]
+[  152.340000] ax88796c_xmit: TX packet, len 42
+[  152.340000] Dump processed TX packet (len 56)
+[  152.340000] 00 2a 07 d5 c0 2a 17 d5 ff ff ff ff ff ff 00 12
+[  152.350000] 34 56 78 9a 08 06 00 01 08 00 06 04 00 01 00 12
+[  152.355000] 34 56 78 9a c0 a8 01 21 00 00 00 00 00 00 c0 a8
+[  152.360000] 01 01 20 4d 00 2a ff d5
+[  152.365000]
+[  152.365000] ax88796c_interrupt: Interrupt status 0x1
+[  152.365000]
+[  152.365000] ax88696c_rx_fixup: Dump RX data, total len 68, packet len 60
+[  152.365000] 00 3c 07 c3 00 00 00 12 34 56 78 9a 00 1b 21 2f
+[  152.365000] 11 4a 08 06 00 01 08 00 06 04 00 02 00 1b 21 2f
+[  152.365000] 11 4a c0 a8 01 01 00 12 34 56 78 9a c0 a8 01 21
+[  152.365000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  152.365000] 00 00 c1 00
+[  152.365000]
+[  152.370000]
+[  152.370000] ax88796c_xmit: TX packet, len 98
+[  152.375000] Dump processed TX packet (len 112)
+[  152.380000] 00 62 0f 9d c0 62 17 9d 00 1b 21 2f 11 4a 00 12
+[  152.385000] 34 56 78 9a 08 00 45 00 00 54 00 00 40 00 40 01
+[  152.390000] b7 36 c0 a8 01 21 c0 a8 01 01 08 00 ce 80 7d 03
+[  152.395000] 00 00 98 72 14 09 00 00 00 00 00 00 00 00 00 00
+[  152.400000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  152.410000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  152.415000] 00 00 00 00 00 00 00 00 00 00 00 00 08 62 f7 9d
+[  152.420000]
+[  152.420000] ax88796c_interrupt: Interrupt status 0x1
+[  152.420000]
+[  152.420000] ax88696c_rx_fixup: Dump RX data, total len 104, packet len 98
+[  152.420000] 00 62 0f 9d 20 00 00 12 34 56 78 9a 00 1b 21 2f
+[  152.420000] 11 4a 08 00 45 00 00 54 64 33 40 00 80 01 13 03
+[  152.420000] c0 a8 01 01 c0 a8 01 21 00 00 d6 80 7d 03 00 00
+[  152.420000] 98 72 14 09 00 00 00 00 00 00 00 00 00 00 00 00
+[  152.420000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  152.420000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  152.420000] 00 00 00 00 00 00 00 00
+[  152.420000]
+64 bytes from 192.168.1.1: seq=0 ttl=128 time=95.000 ms
+[  153.340000]
+[  153.340000] ax88796c_xmit: TX packet, len 98
+[  153.340000] Dump processed TX packet (len 112)
+[  153.345000] 00 62 17 9d c0 62 17 9d 00 1b 21 2f 11 4a 00 12
+[  153.350000] 34 56 78 9a 08 00 45 00 00 54 00 00 40 00 40 01
+[  153.355000] b7 36 c0 a8 01 21 c0 a8 01 01 08 00 f7 29 7d 03
+[  153.360000] 00 01 60 c8 23 09 00 00 00 00 00 00 00 00 00 00
+[  153.365000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  153.370000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  153.375000] 00 00 00 00 00 00 00 00 00 00 00 00 10 62 ef 9d
+[  153.385000]
+[  153.385000] ax88796c_interrupt: Interrupt status 0x1
+[  153.385000]
+[  153.385000] ax88696c_rx_fixup: Dump RX data, total len 104, packet len 98
+[  153.385000] 00 62 17 9d 20 00 00 12 34 56 78 9a 00 1b 21 2f
+[  153.385000] 11 4a 08 00 45 00 00 54 64 34 40 00 80 01 13 02
+[  153.385000] c0 a8 01 01 c0 a8 01 21 00 00 ff 29 7d 03 00 01
+[  153.385000] 60 c8 23 09 00 00 00 00 00 00 00 00 00 00 00 00
+[  153.385000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  153.385000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  153.385000] 00 00 00 00 00 00 00 00
+[  153.385000]
+64 bytes from 192.168.1.1: seq=1 ttl=128 time=80.000 ms
+[  154.425000]
+[  154.425000] ax88796c_xmit: TX packet, len 98
+[  154.425000] Dump processed TX packet (len 112)
+[  154.430000] 00 62 1f 9d c0 62 17 9d 00 1b 21 2f 11 4a 00 12
+[  154.435000] 34 56 78 9a 08 00 45 00 00 54 00 00 40 00 40 01
+[  154.440000] b7 36 c0 a8 01 21 c0 a8 01 01 08 00 9e 9a 7d 03
+[  154.445000] 00 02 a8 56 34 09 00 00 00 00 00 00 00 00 00 00
+[  154.450000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  154.455000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  154.460000] 00 00 00 00 00 00 00 00 00 00 c0 a8 18 62 e7 9d
+[  154.470000]
+[  154.470000] ax88796c_interrupt: Interrupt status 0x1
+[  154.470000]
+[  154.470000] ax88696c_rx_fixup: Dump RX data, total len 104, packet len 98
+[  154.470000] 00 62 1f 9d 20 00 00 12 34 56 78 9a 00 1b 21 2f
+[  154.470000] 11 4a 08 00 45 00 00 54 64 35 40 00 80 01 13 01
+[  154.470000] c0 a8 01 01 c0 a8 01 21 00 00 a6 9a 7d 03 00 02
+[  154.470000] a8 56 34 09 00 00 00 00 00 00 00 00 00 00 00 00
+[  154.470000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  154.470000] 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[  154.470000] 00 00 00 00 00 00 00 00
+[  154.470000]
+64 bytes from 192.168.1.1: seq=2 ttl=128 time=80.000 ms
+
+--- 192.168.1.1 ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 80.000/85.000/95.000 ms
+bash-4.1#

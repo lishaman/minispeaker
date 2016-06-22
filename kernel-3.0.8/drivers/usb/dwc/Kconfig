@@ -1,0 +1,38 @@
+config USB_DWC_OTG
+	tristate 'Synopsys otg 2.0 support'
+	depends on SOC_4780 || SOC_4775
+	select DWC_LM_INTERFACE
+	help
+	  Say Y here to select Synopsys otg.
+
+config DISABLE_PHY
+	depends on USB_DWC_OTG
+	bool "Disable PHY when USB is disconnected"
+	default y
+	help
+	  Disable PHY when USB is disconnected.
+
+choice
+	prompt "Synopsys otg mode"
+	depends on USB_DWC_OTG
+
+config USB_DWC_OTG_DUAL
+	bool "both host and device function"
+	select USB_DWC_PERIPHERAL
+
+config USB_DWC_DEV_ONLY
+	bool "device function"
+	select USB_DWC_PERIPHERAL
+
+config USB_DWC_HOST_ONLY
+	bool "host function"
+
+endchoice
+
+config USB_DWC_PERIPHERAL
+	bool
+	depends on (USB_DWC_OTG_DUAL || USB_DWC_DEV_ONLY)
+
+config DWC_LM_INTERFACE
+	bool
+	depends on USB_DWC_OTG

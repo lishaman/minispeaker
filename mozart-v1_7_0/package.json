@@ -1,0 +1,17 @@
+{
+  "name": "mozart",
+  "version": "1.7.0",
+  "description": "Ingenic Speaker Mozart",
+  "scripts": {
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -w -s",
+    "init": "validate-commit-msg"
+  },
+  "devDependencies": {
+    "cz-conventional-changelog": "^1.1.6"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

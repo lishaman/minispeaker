@@ -1,0 +1,9 @@
+root::0:root
+user::1000:user
+avahi::1001:avahi
+default::1002:default
+www::1003:www
+dbus:x:1004:dbus
+pulse:x:1005:pulse
+messagebus:x:1006:messagebus
+lp:x:1007:lp

@@ -1,0 +1,6 @@
+打开EXCEL,把数据导出为txt文件,然后用pm_tools.py转换成"C"文件.
+例如:
+	./pm_tools.py ./pm_gpio.txt ./pm.c
+
+如有问题找dsqiu@ingenic.cn
+

@@ -1,0 +1,63 @@
+#
+# Miscellaneous I2C chip drivers configuration
+#
+# *** DEPRECATED! Do not add new entries! See Makefile ***
+#
+
+menu "Miscellaneous I2C Chip support"
+
+config SENSORS_NEW
+	tristate "use the new sensors hardware.the driver should provide  manys interface for the andriod"
+	depends on EXPERIMENTAL
+	help
+		this is make the driver used for the andriod sensors.
+config GSENSOR
+	tristate "G sensor  support"
+	help
+
+config SENSORS_LIS3DH
+	tristate "g_sensor LIS3DH driver"
+	depends on GSENSOR
+	help
+
+config SENSORS_DMARD06
+	tristate "g_sensor DMARD06 driver"
+	depends on GSENSOR
+	help
+
+config SENSORS_MMA8452
+        tristate "g_sensor MMA8452 driver"
+        depends on GSENSOR
+        help
+
+config SENSORS_MC32X0
+        tristate "g_sensor MC32X0 driver"
+        depends on GSENSOR
+        help
+
+config SENSORS_BMA250E
+	bool "BOSCH BMA250E triaxial accerleration sensor"
+	depends on GSENSOR
+	help
+
+config SENSORS_EM7180
+	bool "EM7180 sensor"
+	depends on GSENSOR
+	help
+
+config SENSORS_ORI
+	tristate "g_sensor orientation driver"
+	depends on GSENSOR 
+	default y
+
+config LSENSOR
+	tristate "L sensor  support"
+	help
+	
+config SENSORS_STK220X
+	tristate "l_sensor stk220x driver"
+	depends on LSENSOR
+	help
+
+source drivers/i2c/chips/gsensor_bma223/Kconfig
+endmenu

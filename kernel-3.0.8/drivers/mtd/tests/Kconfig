@@ -1,0 +1,59 @@
+menuconfig MTD_TESTS
+	tristate "MTD tests support (DANGEROUS)"
+	help
+	  This option includes various MTD tests into compilation. The tests
+	  should normally be compiled as kernel modules. The modules perform
+	  various checks and verifications when loaded.
+
+	  WARNING: some of the tests will ERASE entire MTD device which they
+	  test. Do not use these tests unless you really know what you do.
+	  
+	  
+if MTD_TESTS
+
+config MTD_OOB_TEST
+	tristate "MTD_OOB_TEST"
+	help
+		nothing
+
+config MTD_PAGE_TEST
+	tristate "MTD_OOB_TEST"
+	help
+		nothing
+
+config MTD_READ_TEST
+	tristate "MTD_READ_TEST"
+	help
+		nothing
+
+config MTD_SPEED_TEST
+	tristate "MTD_SPEED_TEST"
+	help
+		nothing
+
+config MTD_STRESS_TEST
+	tristate "MTD_STRESS_TEST"
+	help
+		nothing
+		
+config MTD_SUBPAGE_TEST
+	tristate "MTD_SUBPAGE_TEST"
+	help
+		nothing
+	
+config MTD_TORTURE_TEST
+	tristate "MTD_TORTURE_TEST"
+	help
+		nothing
+
+config MTD_NAND_ECC_TEST
+	tristate "MTD_NAND_ECC_TEST"
+	help
+		nothing
+
+config MTD_NAND_BIT_ERRS_TEST
+	tristate "MTD_NAND_BIT_ERRS_TEST"
+	help
+		nothing
+
+endif # MTD_TESTS

@@ -1,0 +1,257 @@
+20160127 - V4.6
+	u-boot:
+	* Support 32MB spi-nor and 256MB ddr.
+
+	Kernel:
+	* Support 32MB spi-nor.
+	* device driver update and bug fix.
+
+	SDK(molib-r1026)
+	* Re-write network-manager logic. you NEED FOCUS ON network_callback() in mozart.c
+	* fix some SIGSEGV bug.
+	* add some new interfaces in bt module for resampling.
+	* add BLE support(developing status) in bt module.
+	* add a new interface to set playmode in localplayer module.
+	* modify service start interface to custom render device info in render module
+	* Add ximalaya search song provider
+
+20151214 - V4.4
+	u-boot:
+	* None
+
+	Kernel:
+	* None
+
+	SDK(molib-r898)
+	* update lapsule
+
+20151211 - V4.3
+	u-boot:
+	* regular update
+
+	Kernel:
+	* regular update
+
+	SDK(molib-r898)
+	* Re-write player, refer to player_interface.h
+	* fix bug in network_manager
+	* fix bug in lapsule
+	* add some interfaces in localplayer, refer to localplayer_interface.h
+	* other bug fix.
+
+20151106 - V4.2
+	u-boot:
+	* regular update
+
+	Kernel:
+	* support linein hotplug detect for x1000
+	* fix bug in audio
+
+	SDK(molib-r734)
+	* process linein hotplug detect
+	* new interface:
+	  libbt.so
+	    > int mozart_bluetooth_auto_reconnect(void);
+	    > int mozart_bluetooth_hs_stop_service(void);
+	    > int mozart_bluetooth_avk_stop_service(void);
+	    > int mozart_blutooth_hs_set_volume(tBSA_BTHF_VOLUME_TYPE_T type, int volume);
+	  libwifi.so
+	    > char *get_wifi_scanning_results(void);
+	  libupnp
+	    > add new event: UPNP_EVENT_UNSUBSCRIPTION_NOTIFY
+	* Re-write key-manager, updated to event-manager now, refer to event_interface.h.
+	* Re-write librecord, supply uniqe interface for oss/alsa(alsa Not test).
+	* support custom tone now.
+	* support multi wifi now.
+	* fix many bug, remove some useless log, add some log for debugging.
+
+20151013 - V4.1
+===============
+	u-boot:
+	* fix wait_stable bug while linein insert.
+	* ext4 support OK.
+
+	Kernel:
+	* [x1000] linein hotplug event support.
+	* cutdown memory usage.
+
+	SDK(molib-r631)
+	* fix speech vr deadline problem.
+	* fix apple phone disconnect bug while switch devices.
+	* optimize airplay protocol devcice discovery and Abnormal disconnect timeout.
+	* new interface:
+	  libtips
+	    > mozart_play_tone_sync(...);
+	* complete linein funcs;
+	  1. switch to linein mode on system startup.
+	  2. switch mode on linein hotplug.
+	  3. support switch LINEIN/LOCALPLAY/NETWORK_PLAY mode by KEY_MENU.
+	* fix other bug.
+
+20150928 - V4.0
+===============
+	u-boot:
+	* updte to new version u-boot.
+
+	Kernel:
+	* support cramfs.
+	* fix some bugs in audio driver.
+	* cutdown memory usage.
+
+	SDK(SDK-r597)
+	* remove some useless libs. such as zlog, spimanager...
+	* re-build board config rules.
+	* re-build filesystem method, splite to three fs now.
+	* re-build safe ota/recovery method.
+	* re-build tone method.
+	* cutdown memory usage in many module, such as speech_vr, bt, mozart...
+	* fix playback control bugs in some process.
+	* fix inaccurate state in some process.
+	* fix memory leak in some process.
+	* mplayer support HLS protocol(h3u8 format) now.
+	* optimize wifi config funcs(airkiss, cooee).
+	* lapsule(network music supplier) is stable now.
+	* add test program source in tools/device-tools/test/.
+	* add ONLY one TimeZone: Asia/Shanghai, update system date by ntpd after enter STA mode.
+	* re-design player interface, Please re-read it's document.
+	* change lib name:
+	    > libwifi_interface.so --> libwifi.so
+	    > libkey_interface.so --> libkey.so
+	* new interface:
+	    liblocalplayer(XXX)
+	      > bool mozart_localplayer_is_scanning(void);
+	      > char *mozart_localplayer_get_musiclist(void);
+	      > int mozart_localplayer_get_musiclist_strlen(void);
+	    librender
+	      > int mozart_render_AVTaction_callback(AVTransportActionCallback callback);
+	* deleted interface:
+	    librender
+	      > int mozart_render_init(const char *frendlyname);
+	      > int mozart_render_run(void);
+
+20150829 - V4.0rc
+===============
+    功能验证性版本发布
+
+20150702 - V3.2
+===============
+	u-boot:
+	* add led tips on poweron.
+
+	Kernel:
+	* add trunk v1.1 board support.
+	* bug fix.
+
+	SDK(SDK-r366):
+	* support bt-phone, bt-music, ble on broadcom BT module.
+	* libupnp version update to 1.6.19(lastest version).
+	* resolve some bug on wifi config.
+	* many other optimizations, try it.
+
+20150615 - V3.1
+===============
+    temp version for testing.
+
+20150527 - V3.0
+===============
+	u-boot:
+	* no change almost
+
+	Kernel:
+	* support tf card in halley board.
+	* alsa driver is developing.
+
+	SDK(molib-r308):
+	* support update online in trunk board.
+	* airkiss, simple config(wifi config supported by realtek) update, optimizing continued.
+	* add cooee, neeze(wifi config supported by broadcom), TESTing!!!
+	* bug fix.
+	* re-write SDK config name and config option; named by board name now;
+	*   such as:
+	*      trunk_config
+	*      trunk_mini_config
+	*      mensa_config
+	*      halley_config
+
+20150506 - V2.3
+===============
+	u-boot:
+	* spl support Inimage(package a header on start of zImage)
+	  packaged header:
+		#define IH_STRLEN 32
+		typedef struct image_header {
+			uint32_t zImage_size;
+			uint32_t zImage_textbase;
+			uint8_t crc_str[IH_STRLEN];
+		} image_header_t;
+
+	Kernel:
+	* optimize audio driver.
+	* fix a gpio-key driver bug.
+	* support `make Inimage` rule(exist since v2.0).
+	* update rtl8723bs driver to v4.3.16_13854.20150410_BTCOEX20150119-5844_rtwsimpleconfig2
+
+	SDK(molib-r243):
+	* cutdown fs size for halley platform(8M spi-nor flash).
+	* support config wifi(ap/sta) in web page.
+	* optimize airkiss/simple config.
+	* fix bugs in mplayer.
+	* add 2 configs: mensa_config and minimum_config, refer to 'make help`.
+
+20150429 - V2.2
+===============
+	* release for halley platform(8M spi-nor flash).
+	* from v2.2, support halley formally!
+	update info will shown on next version together.
+
+20150423 - V2.1
+===============
+	u-boot:
+	* do nothing.
+
+	Kernel:
+	* fix some bugs in audio driver.
+	* optimize power.
+
+	SDK(molib-r230):
+	* mplayer bug fix.
+	* shairport add option to control mute buffer operating count while underrun/overrun.
+	* optimize airkiss func in network_manager.
+	* add some configs about airkiss in /etc/network_manager.conf
+
+20150417 - V2.0
+===============
+	u-boot:
+	* optimize spi read speed, load kernel faster.
+
+	Kernel:
+	* fix some bugs in audio driver.
+	* update wifi driver, support Airkiss func.
+	* spi driver support mtd now, can mount a region on spi-nor to
+	  read/write changeful things easily(do not forget to sync after
+	  writing, mtd support is disabled now).
+
+	SDK(molib-r220):
+	* add airkiss support
+	* fix memory leak in some modules.
+	* optimize filesystem making process and filesystem's size.
+	* add some control option in Makefile's *_config
+	    such as:
+	      SUPPORT_WIFI_REALTEK
+	      SUPPORT_FS_RAMDISK
+	      SUPPORT_WIFI_BROADCOM_43362
+	* solved shairport underrun/overrun problem.
+	* mplayer has 2 version: fixed-point and float-point.
+	      part the 2 version with SUPPORT_MPLAYER_FLOAT and SUPPORT_MPLAYER_FIXED in *_config
+	* rootfs support broadcom's wifi(different from realtek in ap mode).
+	* api update in render.
+	        mozart_render_start(void); --> mozart_render_start(const char *friendlyname);
+	  you can specfy a unique DLNA device name with the new api. pass NULL if you like default rule.
+	* add some test programs in /usr/test/.
+	* openssl version update: 0.9.8e --> 0.9.8zf
+	* add librecord, supply record api.
+	* other bug fix...
+
+20150323 - V1.0
+===============
+	v1.0 released.

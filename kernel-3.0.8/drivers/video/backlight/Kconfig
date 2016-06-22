@@ -1,0 +1,601 @@
+#
+# Backlight & LCD drivers configuration
+#
+
+menuconfig BACKLIGHT_LCD_SUPPORT
+	bool "Backlight & LCD device support"
+	help
+	  Enable this to be able to choose the drivers for controlling the
+	  backlight and the LCD panel on some platforms, for example on PDAs.
+
+if BACKLIGHT_LCD_SUPPORT
+
+#
+# LCD
+#
+config LCD_CLASS_DEVICE
+        tristate "Lowlevel LCD controls"
+	default m
+	help
+	  This framework adds support for low-level control of LCD.
+	  Some framebuffer devices connect to platform-specific LCD modules
+	  in order to have a platform-specific way to control the flat panel
+	  (contrast and applying power to the LCD (not to the backlight!)).
+
+	  To have support for your specific LCD panel you will have to
+	  select the proper drivers which depend on this option.
+
+if LCD_CLASS_DEVICE
+
+config LCD_CORGI
+	tristate "LCD Panel support for SHARP corgi/spitz model"
+	depends on SPI_MASTER && PXA_SHARPSL
+	help
+	  Say y here to support the LCD panels usually found on SHARP
+	  corgi (C7x0) and spitz (Cxx00) models.
+
+config LCD_L4F00242T03
+	tristate "Epson L4F00242T03 LCD"
+	depends on SPI_MASTER && GENERIC_GPIO
+	help
+	  SPI driver for Epson L4F00242T03. This provides basic support
+	  for init and powering the LCD up/down through a sysfs interface.
+
+config LCD_LMS283GF05
+	tristate "Samsung LMS283GF05 LCD"
+	depends on SPI_MASTER && GENERIC_GPIO
+	help
+	  SPI driver for Samsung LMS283GF05. This provides basic support
+	  for powering the LCD up/down through a sysfs interface.
+
+config LCD_LTV350QV
+	tristate "Samsung LTV350QV LCD Panel"
+	depends on SPI_MASTER
+	help
+	  If you have a Samsung LTV350QV LCD panel, say y to include a
+	  power control driver for it.  The panel starts up in power
+	  off state, so you need this driver in order to see any
+	  output.
+
+	  The LTV350QV panel is present on all ATSTK1000 boards.
+
+config LCD_ILI9320
+	tristate
+	help
+	  If you have a panel based on the ILI9320 controller chip
+	  then say y to include a power driver for it.
+
+config LCD_TDO24M
+	tristate "Toppoly TDO24M  and TDO35S LCD Panels support"
+	depends on SPI_MASTER
+	help
+	  If you have a Toppoly TDO24M/TDO35S series LCD panel, say y here to
+	  include the support for it.
+
+config LCD_VGG2432A4
+	tristate "VGG2432A4 LCM device support"
+	depends on SPI_MASTER
+	select LCD_ILI9320
+	help
+	  If you have a VGG2432A4 panel based on the ILI9320 controller chip
+	  then say y to include a power driver for it.
+
+config LCD_PLATFORM
+	tristate "Platform LCD controls"
+	help
+	  This driver provides a platform-device registered LCD power
+	  control interface.
+
+config LCD_PANEL_RESET_ENABLE
+	bool "LCD panel reset enable"
+	default n
+	help
+	  This option provides a software reset control interface for the panel.
+	  Don't choose it, if you need to continue display logo when boot.
+
+config LCD_TOSA
+	tristate "Sharp SL-6000 LCD Driver"
+	depends on SPI && MACH_TOSA
+	help
+	  If you have an Sharp SL-6000 Zaurus say Y to enable a driver
+	  for its LCD.
+
+config LCD_HP700
+	tristate "HP Jornada 700 series LCD Driver"
+	depends on SA1100_JORNADA720_SSP && !PREEMPT
+	default y
+	help
+	  If you have an HP Jornada 700 series handheld (710/720/728)
+	  say Y to enable LCD control driver.
+
+config LCD_S6E63M0
+	tristate "S6E63M0 AMOLED LCD Driver"
+	depends on SPI && BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have an S6E63M0 LCD Panel, say Y to enable its
+	  LCD control driver.
+
+config LCD_LD9040
+	tristate "LD9040 AMOLED LCD Driver"
+	depends on SPI && BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have an LD9040 Panel, say Y to enable its
+	  control driver.
+
+config LCD_AT070TN93
+	tristate "AT070TN93 LCD Driver"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have an AT070TN93 Panel, say Y to enable its
+	  control driver.
+
+config LCD_AUO_A043FL01V2
+	tristate "AUO_A043FL01V2 LCD Driver"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have an AUO_A043FL01V2 Panel, say Y to enable its
+	  control driver.
+
+config LCD_KD50G2_40NM_A2
+	tristate "KD50G2_40NM_A2 panel(800x480)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+
+config LCD_BYD_BM8766U
+	tristate "BYD BM8766U panel(800x480)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+
+config LCD_BYD_8991FTGF
+	tristate "BYD 8991FTGF panel(480x800)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+
+config LCD_BYD_9177AA
+	tristate "byd 9177aa  mipi-dsi panel(540x960)"
+	depends on FB && JZ_MIPI_DSI
+	help
+	   jz mipi dsi.dpi TFT display panel  support
+
+config LCD_TRULY_TDO_HD0499K
+	tristate "truly tdo_hd0499k  mipi-dsi panel(720x1280)"
+	depends on FB && JZ_MIPI_DSI
+	help
+	   jz mipi dsi.dpi TFT display panel  support
+
+config LCD_HS_DS07012D
+	tristate "HS DS07012D panel(800x480)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+
+config LCD_KR070LA0S_270
+	tristate "KR070LA0S_270 LVDS TFT panel(1024x600)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have a KR070LA0S_270 Panel, say Y to enable its
+	  control driver. The panel's model is 20810700240110.
+
+config LCD_TM080TDH01
+	tristate "TM080TDH01 LVDS TFT panel(1024x768)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have a TM080TDH01 Panel, say Y to enable its
+	  control driver.
+
+config LCD_SL007DC18B05
+	tristate "LCD_SL007DC18B05 LVDS TFT panel(1024x600)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have a KR080LA4S_250 Panel, say Y to enable its
+	  control driver. The panel's model is 20810800300029.
+
+
+config LCD_KR080LA4S_250
+	tristate "KR080LA4S_250 LVDS TFT panel(1024x768)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have a KR080LA4S_250 Panel, say Y to enable its
+	  control driver. The panel's model is 20810800300029.
+
+config LCD_CRD080TI01_40NM01
+	tristate "LCD_CRD080TI01_40NM01 LVDS TFT panel(1024x768)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have a LCD_CRD080TI01_40NM01 Panel, say Y to enable its
+	  control driver.
+
+config LCD_HSD101PWW1
+	tristate "HSD101PWW1 LVDS TFT panel(1280x800)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have a HSD101PWW1 Panel, say Y to enable its
+	  control driver.
+
+config LCD_LP101WX1_SLN2
+	tristate "LP101WX1_SLN2 LVDS TFT panel(1280x800)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have a LP101WX1_SLN2 Panel, say Y to enable its
+	  control driver.
+
+config LCD_EK070TN93
+	tristate "EK070TN93 LCD Driver"
+	depends on BACKLIGHT_CLASS_DEVICE 
+	default n
+	help
+	  If you have an EK070TN93 Panel, say Y to enable its
+	  control driver.
+
+config LCD_AT065TN14
+	tristate "AT065TN14 LCD Driver"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have an AT065TN14 Panel, say Y to enable its
+	  control driver.
+
+config LCD_JZLCD
+	tristate "JZLCD LCD Driver"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have an JZLCD Panel, say Y to enable its
+	  control driver.
+
+config LCD_JCMT070T115A18
+	tristate "JCMT070T115A18 LCD Driver(800x480)"
+	depends on LCD_JZLCD
+	default n
+	help
+	  If you have an JCMT070T115A18 Panel, say Y to enable its
+	  control driver.
+
+config LCD_LXJC070WHM_280_24A1
+	tristate "LXJC070WHM_280_24A1 LCD Driver(1024x600)"
+	depends on LCD_JZLCD
+	default n
+	help
+	  If you have an LXJC070WHM_280_24A1 Panel, say Y to enable its
+	  control driver.
+
+config LCD_HSD070IDW1
+	tristate "HSD070IDW1 LCD Driver"
+	depends on BACKLIGHT_CLASS_DEVICE && DISABLE_LVDS_FUNCTION
+	default n
+	help
+	  If you have an HSD070IDW1 Panel, say Y to enable its
+	  control driver.
+
+config LCD_KFM701A21_1A
+	tristate "KFM701A21_1A TFT Smart LCD panel(400x240)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have an KFM701A21_1A Panel, say Y to enable its
+	  control driver. The driver IC of this module is SPFD5420A.
+
+config LCD_XRM2002903
+	tristate "XRM2002903 TFT Smart LCD panel(176x220)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have an XRM2002903 Panel, say Y to enable its
+	  control driver. The driver IC of this module is ST7775R.
+
+config LCD_FRD240A3602B
+	tristate "FRD240A3602B TFT Smart LCD panel(240x320)"
+	depends on BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If you have an FRD240A3602B Panel, say Y to enable its
+	  control driver. The driver IC of this module is ILI9341.
+
+config LCD_TRULY_TFT240240_2_E
+       tristate "SLCD TRULY TFT240240-2-E with control IC st7789s (240x240)"
+       depends on BACKLIGHT_CLASS_DEVICE
+       default n
+
+config LCD_LH155
+	tristate "LH155 smart mipi-dsi panel(240x240)"
+	depends on FB && JZ_MIPI_DSI
+	help
+		jz mipi dsi.dbi smart display panel support
+
+config SLCDC_USE_TE
+       tristate "SLCDC USE TE SIGNAL"
+       depends on BACKLIGHT_CLASS_DEVICE
+       default n
+
+config GPIO_SIMULATE
+       tristate "USE GPIO SIMULATE TO MCU INIT"
+       depends on LCD_TRULY_TFT240240_2_E || LCD_CV90_M5377_P30
+       default n
+
+config SLCDC_CONTINUA
+       tristate "SLCDC CONTINUA TRANFER"
+       depends on BACKLIGHT_CLASS_DEVICE
+       default n
+
+config LCD_DRVIER_TL2796
+	bool
+	depends on SPI && BACKLIGHT_CLASS_DEVICE
+	default n
+	help
+	  If your lcd is driving by ic tl2796, select it 
+
+config LCD_S369FG06
+	tristate "S369FG06 AMOLED LCD Driver, panel(480x800)"
+	depends on SPI && BACKLIGHT_CLASS_DEVICE
+	select LCD_DRVIER_TL2796
+	default n
+	help
+	  If you have an S369FG06 LCD Panel, say Y to enable its
+	  LCD control driver.
+
+config LCD_KD301_M03545_0317A
+	bool "KD301_M03545_0317A panel(320x480)"
+	depends on BACKLIGHT_CLASS_DEVICE 
+	default n
+	help
+	  If you have KD301_M03545_0317A panel, say Y to use it
+
+config LCD_TM035PDH03
+	bool "TM035PDH03 panel(320x480)"
+	depends on BACKLIGHT_CLASS_DEVICE 
+	default n
+	help
+	  If you have KD301_M03545_0317A panel, say Y to use it	  
+	  
+endif # LCD_CLASS_DEVICE
+
+#
+# Backlight
+#
+config BACKLIGHT_CLASS_DEVICE
+        tristate "Lowlevel Backlight controls"
+	default m
+	help
+	  This framework adds support for low-level control of the LCD
+          backlight. This includes support for brightness and power.
+
+	  To have support for your specific LCD panel you will have to
+	  select the proper drivers which depend on this option.
+
+if BACKLIGHT_CLASS_DEVICE
+
+config BACKLIGHT_ATMEL_LCDC
+	bool "Atmel LCDC Contrast-as-Backlight control"
+	depends on FB_ATMEL
+	default y if MACH_SAM9261EK || MACH_SAM9G10EK || MACH_SAM9263EK
+	help
+	  This provides a backlight control internal to the Atmel LCDC
+	  driver.  If the LCD "contrast control" on your board is wired
+	  so it controls the backlight brightness, select this option to
+	  export this as a PWM-based backlight control.
+
+	  If in doubt, it's safe to enable this option; it doesn't kick
+	  in unless the board's description says it's wired that way.
+
+config BACKLIGHT_ATMEL_PWM
+	tristate "Atmel PWM backlight control"
+	depends on ATMEL_PWM
+	help
+	  Say Y here if you want to use the PWM peripheral in Atmel AT91 and
+	  AVR32 devices. This driver will need additional platform data to know
+	  which PWM instance to use and how to configure it.
+
+	  To compile this driver as a module, choose M here: the module will be
+	  called atmel-pwm-bl.
+
+config BACKLIGHT_EP93XX
+	tristate "Cirrus EP93xx Backlight Driver"
+	depends on FB_EP93XX
+	help
+	  If you have a LCD backlight connected to the BRIGHT output of
+	  the EP93xx, say Y here to enable this driver.
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called ep93xx_bl.
+
+config BACKLIGHT_GENERIC
+	tristate "Generic (aka Sharp Corgi) Backlight Driver"
+	default y
+	help
+	  Say y to enable the generic platform backlight driver previously
+	  known as the Corgi backlight driver. If you have a Sharp Zaurus
+	  SL-C7xx, SL-Cxx00 or SL-6000x say y.
+
+config BACKLIGHT_LOCOMO
+	tristate "Sharp LOCOMO LCD/Backlight Driver"
+	depends on SHARP_LOCOMO
+	default y
+	help
+	  If you have a Sharp Zaurus SL-5500 (Collie) or SL-5600 (Poodle) say y to
+	  enable the LCD/backlight driver.
+
+config BACKLIGHT_OMAP1
+	tristate "OMAP1 PWL-based LCD Backlight"
+	depends on ARCH_OMAP1
+	default y
+	help
+	  This driver controls the LCD backlight level and power for
+	  the PWL module of OMAP1 processors.  Say Y if your board
+	  uses this hardware.
+
+config BACKLIGHT_HP680
+	tristate "HP Jornada 680 Backlight Driver"
+	depends on SH_HP6XX
+	default y
+	help
+	  If you have a HP Jornada 680, say y to enable the
+	  backlight driver.
+
+config BACKLIGHT_HP700
+	tristate "HP Jornada 700 series Backlight Driver"
+	depends on SA1100_JORNADA720_SSP && !PREEMPT
+	default y
+	help
+	  If you have an HP Jornada 700 series,
+	  say Y to include backlight control driver.
+
+config BACKLIGHT_PROGEAR
+	tristate "Frontpath ProGear Backlight Driver"
+	depends on PCI && X86
+	help
+	  If you have a Frontpath ProGear say Y to enable the
+	  backlight driver.
+
+config BACKLIGHT_CARILLO_RANCH
+	tristate "Intel Carillo Ranch Backlight Driver"
+	depends on LCD_CLASS_DEVICE && PCI && X86 && FB_LE80578
+	help
+	  If you have a Intel LE80578 (Carillo Ranch) say Y to enable the
+	  backlight driver.
+
+config BACKLIGHT_PWM
+	tristate "Generic PWM based Backlight Driver"
+	depends on HAVE_PWM && JZ_PWM
+	help
+	  If you have a LCD backlight adjustable by PWM, say Y to enable
+	  this driver. Choice JZ PWM driver and the PWM channel.
+
+config BACKLIGHT_PWM_V13
+	tristate "Generic PWM based Backlight Driver V13"
+	depends on HAVE_PWM && JZ_PWM
+	help
+	  If you have a LCD backlight adjustable by PWM, say Y to enable
+	  this driver. Choice JZ PWM driver and the PWM channel.
+
+config CLEAR_PWM_OUTPUT
+	tristate "Clear PWM output level"
+	depends on HAVE_PWM && JZ_PWM && BACKLIGHT_PWM || BACKLIGHT_PWM_V13
+	help
+	  If you have a LCD backlight adjustable by PWM and early suspend
+	  is don't close the backlight, say Y to enable this driver.
+	  Choice JZ PWM driver and the PWM channel.
+
+config BACKLIGHT_PWM_ZPAD80
+	tristate "Generic PWM based Backlight Driver for zapad80"
+	depends on HAVE_PWM && JZ_PWM
+	help
+	  If you have a LCD backlight adjustable by PWM, say Y to enable
+	  this driver. Choice JZ PWM driver and the PWM channel.
+
+config BACKLIGHT_DIGITAL_PULSE
+	tristate "Generic Digital pulse based Backlight Driver"
+	default n
+	help
+	  If you have a LCD backlight adjustable by Digital pulse, say Y to enable
+	  this driver.
+
+config BACKLIGHT_DA903X
+	tristate "Backlight Driver for DA9030/DA9034 using WLED"
+	depends on PMIC_DA903X
+	help
+	  If you have a LCD backlight connected to the WLED output of DA9030
+	  or DA9034 WLED output, say Y here to enable this driver.
+
+config BACKLIGHT_MAX8925
+	tristate "Backlight driver for MAX8925"
+	depends on MFD_MAX8925
+	help
+	  If you have a LCD backlight connected to the WLED output of MAX8925
+	  WLED output, say Y here to enable this driver.
+
+config BACKLIGHT_APPLE
+       tristate "Apple Backlight Driver"
+       depends on X86 && ACPI
+       help
+         If you have an Intel-based Apple say Y to enable a driver for its
+	 backlight.
+
+config BACKLIGHT_TOSA
+	tristate "Sharp SL-6000 Backlight Driver"
+	depends on I2C && MACH_TOSA && LCD_TOSA
+	help
+	  If you have an Sharp SL-6000 Zaurus say Y to enable a driver
+	  for its backlight
+
+config BACKLIGHT_SAHARA
+	tristate "Tabletkiosk Sahara Touch-iT Backlight Driver"
+	depends on X86
+	help
+	  If you have a Tabletkiosk Sahara Touch-iT, say y to enable the
+	  backlight driver.
+
+config BACKLIGHT_WM831X
+	tristate "WM831x PMIC Backlight Driver"
+	depends on MFD_WM831X
+	help
+	  If you have a backlight driven by the ISINK and DCDC of a
+	  WM831x PMIC say y to enable the backlight driver for it.
+
+config BACKLIGHT_ADX
+	tristate "Avionic Design Xanthos Backlight Driver"
+	depends on ARCH_PXA_ADX
+	default y
+	help
+	  Say Y to enable the backlight driver on Avionic Design Xanthos-based
+	  boards.
+
+config BACKLIGHT_ADP5520
+	tristate "Backlight Driver for ADP5520/ADP5501 using WLED"
+	depends on PMIC_ADP5520
+	help
+	  If you have a LCD backlight connected to the BST/BL_SNK output of
+	  ADP5520 or ADP5501, say Y here to enable this driver.
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called adp5520_bl.
+
+config BACKLIGHT_ADP8860
+	tristate "Backlight Driver for ADP8860/ADP8861/ADP8863 using WLED"
+	depends on BACKLIGHT_CLASS_DEVICE && I2C
+	select NEW_LEDS
+	select LEDS_CLASS
+	help
+	  If you have a LCD backlight connected to the ADP8860, ADP8861 or
+	  ADP8863 say Y here to enable this driver.
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called adp8860_bl.
+
+config BACKLIGHT_ADP8870
+	tristate "Backlight Driver for ADP8870 using WLED"
+	depends on BACKLIGHT_CLASS_DEVICE && I2C
+	select NEW_LEDS
+	select LEDS_CLASS
+	help
+	  If you have a LCD backlight connected to the ADP8870,
+	  say Y here to enable this driver.
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called adp8870_bl.
+
+config BACKLIGHT_88PM860X
+	tristate "Backlight Driver for 88PM8606 using WLED"
+	depends on MFD_88PM860X
+	help
+	  Say Y to enable the backlight driver for Marvell 88PM8606.
+
+config BACKLIGHT_PCF50633
+	tristate "Backlight driver for NXP PCF50633 MFD"
+	depends on BACKLIGHT_CLASS_DEVICE && MFD_PCF50633
+	help
+	  If you have a backlight driven by a NXP PCF50633 MFD, say Y here to
+	  enable its driver.
+
+endif # BACKLIGHT_CLASS_DEVICE
+
+endif # BACKLIGHT_LCD_SUPPORT

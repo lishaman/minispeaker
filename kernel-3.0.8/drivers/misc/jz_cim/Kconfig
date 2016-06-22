@@ -1,0 +1,127 @@
+
+
+config JZ_CIM
+	bool "ingenic camera interface module"
+	depends on MACH_XBURST
+	default n
+
+config JZ_CIM0
+	bool "Using Jz CIM Controller 0"
+	depends on JZ_CIM && SOC_4775
+	default n
+
+config JZ_CIM1
+	bool "Using Jz CIM Controller 1"
+	depends on JZ_CIM && SOC_4775
+	default n
+
+config CAMERA_SENSOR_NO_MCLK_CTL
+	bool "no mclk for camera sensor"
+	depends on JZ_CIM
+	default n
+
+config CAMERA_SENSOR_NO_POWER_CTL
+	bool "no power control pin for camera sensor"
+	depends on JZ_CIM
+	default n
+
+config OV3640
+	bool "ov3640 camera sensor"
+	depends on JZ_CIM
+	default n
+
+config OV7675
+	bool "ov7675 camera sensor"
+	depends on JZ_CIM
+	default n
+
+config OV2650
+	bool "ov2650 camera sensor"
+	depends on JZ_CIM
+	default n
+
+config OV2659_MODULE
+	bool "ov2659 camera sensor module"
+	depends on JZ_CIM
+	default n
+
+config OV5640
+	bool "ov5640 camera sensor module"
+	depends on JZ_CIM
+	default n
+
+config OV5640_RAW_BAYER
+	bool "ov5640 raw bayer mode"
+	depends on JZ_CIM && OV5640
+	default n
+
+config SP0838
+	bool "sp0838 camera sensor"
+	depends on JZ_CIM
+	default n
+
+config ADV7180
+       bool "adv7180 camera sensor"
+       depends on JZ_CIM
+       default n
+
+config GC0308
+	bool "gc0308 camera sensor"
+	depends on JZ_CIM
+	default n
+
+config HORIZONTAL_MIRROR
+	bool "camera sensor horizontal mirror"
+	depends on JZ_CIM
+	default n
+
+config VERTICAL_MIRROR
+	bool "camera sensor vertical mirror"
+	depends on JZ_CIM
+	default n
+
+config GC0308_Q8
+	bool "double_gc0308_q8 camera sensor"
+	depends on JZ_CIM
+	default n
+
+
+
+config GC2015
+	bool "gc2015 camera sensor"
+	depends on JZ_CIM
+	default n
+config HI253
+	bool "hi253 camera sensor"
+	depends on JZ_CIM
+	default n
+
+config HI704
+	bool "hi704 camera sensor"
+	depends on JZ_CIM
+	default n
+
+config FAKE
+	bool "fake camera sensor only for test"
+	depends on JZ_CIM
+	default n
+
+config FAKE_NR
+	int "fake camera sensor number"
+	depends on FAKE
+	default 2
+
+config GT2005
+        bool "gt2005 camera sensor"
+        depends on JZ_CIM
+        default n
+
+config TVP5150
+        bool "tvp5150  Texas Instruments video decoder"
+        depends on JZ_CIM
+        default n
+
+config GC0307
+        bool "gc0307  Galaxycore camer sensor"
+        depends on JZ_CIM
+        default n

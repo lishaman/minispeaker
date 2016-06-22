@@ -1,0 +1,21 @@
+choice
+	prompt "BOARD type"
+	depends on PRODUCT_RVMS
+	default BOARD_FORNAX
+
+config BOARD_FORNAX
+       bool "board fornax"
+       depends on PRODUCT_RVMS
+config BOARD_PAWSCAN
+       bool "board pawscan"
+       depends on PRODUCT_RVMS
+config BOARD_DOORBELL
+       bool "board doorbell"
+       depends on PRODUCT_RVMS
+endchoice
+
+config BOARD_NAME
+	string
+	default "fornax" if BOARD_FORNAX
+	default "NP_PawScam01m_AB" if BOARD_PAWSCAN
+	default "doorbell" if BOARD_DOORBELL
